@@ -554,7 +554,56 @@ const DECKS = {
       { tag: "Repaso · 14",
         q: "¿Qué significa que un conmutador use \"almacenar y reenviar\" (store-and-forward)?",
         a: `El conmutador (router/switch) debe <strong>recibir el paquete completo</strong> antes de empezar a transmitirlo por el enlace de salida. No puede reenviar bit a bit a medida que llegan.<br>
-        Por eso, en un enlace, el retardo de transmisión se suma en cada nodo: con N enlaces de tasa R y paquete L → retardo ≈ <strong>N·(L/R)</strong>.` }
+        Por eso, en un enlace, el retardo de transmisión se suma en cada nodo: con N enlaces de tasa R y paquete L → retardo ≈ <strong>N·(L/R)</strong>.` },
+
+      { tag: "Cálculo · 1",
+        q: "Un paquete de 8.000 bits se envía por un enlace de 2 Mbps. ¿Cuál es el retardo de transmisión?",
+        a: `<div class="formula">d_trans = L / R = 8.000 / 2.000.000 = 0,004 s</div>
+        <strong>= 4 ms.</strong><br>
+        Recordá: el retardo de transmisión <em>no</em> depende de la distancia, solo del tamaño (L) y la tasa (R).` },
+      { tag: "Cálculo · 2",
+        q: "Dos hosts están a 3.000 km. Velocidad de propagación = 2,5×10⁸ m/s. ¿Retardo de propagación?",
+        a: `<div class="formula">d_prop = d / v = 3.000.000 m / 2,5×10⁸ = 0,012 s</div>
+        <strong>= 12 ms.</strong><br>
+        Pasá los km a metros (3.000 km = 3.000.000 m). No depende del tamaño del paquete.` },
+      { tag: "Cálculo · 3",
+        q: "Paquete L=1.000 bits, enlace R=1 Mbps, distancia 2.500 km, v=2,5×10⁸ m/s. Retardo extremo a extremo (sin cola ni procesamiento).",
+        a: `<div class="formula">d_trans = 1.000 / 1.000.000 = 1 ms
+d_prop = 2.500.000 / 2,5×10⁸ = 10 ms
+Total = 1 + 10 = 11 ms</div>
+        El retardo total es la <strong>suma</strong> de transmisión + propagación.` },
+      { tag: "Cálculo · 4",
+        q: "Un paquete de 4.000 bits atraviesa 3 enlaces de 2 Mbps (con 2 routers store-and-forward). Retardo total de transmisión.",
+        a: `Con <strong>store-and-forward</strong>, cada nodo recibe el paquete completo antes de reenviar:
+        <div class="formula">d = N · (L/R) = 3 · (4.000 / 2.000.000)
+d = 3 · 2 ms = 6 ms</div>
+        N = cantidad de <strong>enlaces</strong> (no de routers).` },
+      { tag: "Cálculo · 5",
+        q: "Tres enlaces en serie: 10 Mbps, 2 Mbps y 5 Mbps. Se baja un archivo de 5 MB. ¿Throughput y tiempo?",
+        a: `<div class="formula">Throughput = mín(10, 2, 5) = 2 Mbps  (cuello de botella)
+5 MB = 5 × 8 = 40 Mbit = 40.000.000 bits
+t = 40.000.000 / 2.000.000 = 20 s</div>
+        Ojo: <strong>1 byte = 8 bits</strong>, por eso 5 MB = 40 Mbit.` },
+      { tag: "Cálculo · 6",
+        q: "Enlace compartido. Cada usuario transmite el 10% del tiempo (p = 0,1). Hay 3 usuarios. ¿Probabilidad de que los 3 transmitan a la vez?",
+        a: `Como son independientes, se multiplican:
+        <div class="formula">P = p³ = 0,1 × 0,1 × 0,1 = 0,001</div>
+        Es decir, <strong>0,1%</strong>. Por eso la multiplexación estadística (paquetes) aprovecha mejor el enlace: rara vez todos transmiten juntos.` },
+      { tag: "Cálculo · 7",
+        q: "Enlace de 10 Mbps. Cada usuario necesita 1 Mbps cuando transmite. ¿Cuántos usuarios soporta con conmutación de circuitos?",
+        a: `<div class="formula">N = R_enlace / R_usuario = 10 Mbps / 1 Mbps = 10 usuarios</div>
+        En circuitos cada usuario tiene su ancho de banda <strong>reservado</strong>, así que el máximo es fijo (10), transmitan o no.` },
+      { tag: "Cálculo · 8",
+        q: "Paquetes de 1.000 bits llegan a razón de a=1.000 por segundo a un enlace de 1 Mbps. ¿Intensidad de tráfico? ¿Qué implica?",
+        a: `<div class="formula">La/R = (1.000 × 1.000) / 1.000.000 = 1</div>
+        <strong>La/R = 1</strong> → el enlace está al límite: el retardo de cola se dispara y, si sube un poco más, se <strong>pierden paquetes</strong>. (Ideal: La/R bien por debajo de 1.)` },
+      { tag: "Cálculo · 9",
+        q: "Una web tiene 1 HTML + 5 imágenes. Con RTT conocido, ¿cuántos RTT tarda con conexiones HTTP no persistentes (en serie) vs persistentes?",
+        a: `<strong>No persistente:</strong> 2 RTT por objeto (1 para abrir TCP + 1 para pedir/recibir):
+        <div class="formula">(1 + 5) × 2 = 12 RTT</div>
+        <strong>Persistente:</strong> 1 conexión TCP y luego 1 RTT por objeto:
+        <div class="formula">2 RTT (abrir + HTML) + 5 RTT (imágenes) = 7 RTT</div>
+        (Más los tiempos de transmisión, que acá se desprecian.)` }
     ]
   }
 
