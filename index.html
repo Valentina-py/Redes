@@ -58,12 +58,6 @@
   .reset { background: none; border: 1px solid var(--ring); color: var(--muted); border-radius: 100px;
     padding: 6px 14px; font-size: 12px; cursor: pointer; margin-top: 8px; }
   .reset:hover { color: var(--text); border-color: rgba(255,255,255,.25); }
-  .install { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px;
-    background: linear-gradient(135deg, #2e8b57, #3a7bd5); color: #fff; border: none;
-    border-radius: 100px; padding: 12px 22px; font-size: 15px; font-weight: 700; cursor: pointer;
-    box-shadow: 0 10px 28px rgba(46,139,87,.35); transition: transform .15s ease, filter .15s ease; }
-  .install:hover { filter: brightness(1.08); transform: translateY(-2px); }
-  .install:active { transform: scale(.97); }
   /* ===== Diálogo propio (reemplaza confirm del navegador) ===== */
   .modal-overlay { position: fixed; inset: 0; background: rgba(6,10,20,.66); backdrop-filter: blur(3px);
     display: flex; align-items: center; justify-content: center; padding: 22px; z-index: 50;
@@ -92,7 +86,6 @@
     <span class="badge">Redes Informáticas y Comunicación</span>
     <h1>Tarjetas de estudio</h1>
     <p class="lead">Elegí un mazo para repasar. Tocá una tarjeta para ver la respuesta, marcá lo que ya sabés y mezclá para autoevaluarte. Tu progreso se guarda en este dispositivo.</p>
-    <button class="install hide" id="installBtn">⬇️ Instalar app</button>
   </header>
 
   <div class="decks" id="decks"></div>
@@ -128,52 +121,7 @@
       _mActions.append(c, o); _modal.classList.add("show"); o.focus();
     });
   }
-  function uiInfo(msg, icon = "📲"){
-    document.querySelector("#modal .m-icon").textContent = icon;
-    _mMsg.innerHTML = msg; _mActions.innerHTML = "";
-    const o = document.createElement("button"); o.className = "m-btn m-ok"; o.textContent = "Entendido";
-    o.onclick = () => _modal.classList.remove("show");
-    _mActions.append(o); _modal.classList.add("show"); o.focus();
-  }
   _modal.addEventListener("click", e => { if (e.target === _modal) _modal.classList.remove("show"); });
-
-  /* ---- Botón "Instalar app" (PWA) ---- */
-  const installBtn = document.getElementById("installBtn");
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  let deferredPrompt = null;
-
-  // El botón se muestra siempre que no esté ya instalada (no dependemos del evento,
-  // porque navegadores como Brave no siempre lo disparan).
-  if (!isStandalone) installBtn.classList.remove("hide");
-
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt = e;            // si llega, podremos abrir el instalador nativo
-    if (!isStandalone) installBtn.classList.remove("hide");
-  });
-  window.addEventListener("appinstalled", () => { installBtn.classList.add("hide"); deferredPrompt = null; });
-
-  const isBrave = !!(navigator.brave && navigator.brave.isBrave);
-
-  installBtn.addEventListener("click", async () => {
-    // 1) Si el navegador permite el instalador automático (Chrome/Edge), lo abrimos.
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      if (outcome === "accepted") installBtn.classList.add("hide");
-      return;
-    }
-    // 2) Si no (Brave, iPhone, Firefox…), mostramos los pasos manuales.
-    if (isIOS) {
-      uiInfo("En iPhone (Safari):<ol><li>Tocá <b>Compartir</b> (el cuadradito con la flecha ↑, abajo).</li><li>Bajá y tocá <b>«Agregar a inicio»</b>.</li></ol>");
-    } else if (isBrave) {
-      uiInfo("En <b>Brave</b>:<ol><li><b>Celular:</b> menú <b>⋮</b> (abajo o arriba) → <b>«Agregar a la pantalla de inicio»</b>.</li><li><b>Compu:</b> menú <b>☰/⋮</b> → <b>«Instalar Tarjetas de Redes…»</b> (o el ícono ⊕ en la barra de direcciones).</li></ol>", "🦁");
-    } else {
-      uiInfo("Para instalarla:<ol><li>Fijate el ícono de instalar <b>⊕</b> en la barra de direcciones (al lado de la URL).</li><li>O abrí el menú <b>⋮</b> → <b>«Instalar app»</b> / <b>«Agregar a la pantalla principal»</b>.</li></ol>", "💡");
-    }
-  });
 
   const cont = document.getElementById("decks");
 

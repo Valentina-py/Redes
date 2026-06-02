@@ -4,7 +4,7 @@
      internet, usa la copia guardada). Así nunca ves tarjetas viejas estando online.
    - Íconos/manifest: "cache-first" (carga instantánea).
    Al cambiar el contenido, subí el número de versión (CACHE) para forzar refresco. */
-const CACHE = "redes-v1";
+const CACHE = "redes-v2";
 const ASSETS = [
   "./", "./index.html", "./study.html", "./data.js",
   "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-180.png"
@@ -29,7 +29,7 @@ self.addEventListener("fetch", (e) => {
   const isFresh = req.mode === "navigate" || url.pathname.endsWith(".html") || url.pathname.endsWith(".js");
 
   if (isFresh) {
-    // network-first
+    // network-first; offline → cache (ignorando el ?deck=... para que matchee study.html)
     e.respondWith(
       fetch(req)
         .then((res) => {
@@ -37,12 +37,14 @@ self.addEventListener("fetch", (e) => {
           caches.open(CACHE).then((c) => c.put(req, copy));
           return res;
         })
-        .catch(() => caches.match(req).then((m) => m || caches.match("./index.html")))
+        .catch(() => caches.match(req, { ignoreSearch: true })
+          .then((m) => m || caches.match(req.mode === "navigate" ? "./study.html" : req))
+          .then((m) => m || caches.match("./index.html")))
     );
   } else {
     // cache-first
     e.respondWith(
-      caches.match(req).then((m) => m || fetch(req).then((res) => {
+      caches.match(req, { ignoreSearch: true }).then((m) => m || fetch(req).then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(req, copy));
         return res;

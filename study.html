@@ -46,7 +46,7 @@
     transform-style: preserve-3d; transition: transform .5s cubic-bezier(.2,.7,.2,1); }
   .card.flipped { transform: rotateY(180deg); }
   .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
-    border-radius: 22px; padding: 28px 26px 60px; display: flex; flex-direction: column;
+    border-radius: 22px; padding: 26px 24px 22px; display: flex; flex-direction: column;
     border: 1px solid var(--ring); box-shadow: 0 24px 60px rgba(0,0,0,.45);
     overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
   .front { background: linear-gradient(160deg, #1d2a48, #16203a); }
@@ -75,8 +75,11 @@
   .layer-block .lh { font-weight: 800; color: var(--accent2); font-size: 14px; margin-bottom: 3px; letter-spacing: .3px; }
   .tip { margin-top: 12px; font-size: 13px; color: #cfe6da; background: rgba(255,255,255,.05);
     border-radius: 8px; padding: 8px 12px; }
-  .hint { position: absolute; left: 0; right: 0; bottom: 22px; text-align: center;
-    font-size: 12px; color: var(--muted); pointer-events: none; }
+  .hint { margin-top: auto; padding-top: 16px; text-align: center;
+    font-size: 12px; color: var(--muted); pointer-events: none; flex-shrink: 0; }
+  .st { display: inline-block; padding: 5px 14px; border-radius: 100px; font-weight: 700; font-size: 12.5px; letter-spacing: .2px; }
+  .st-known { background: rgba(46,174,106,.18); color: #7fe0a6; border: 1px solid rgba(46,174,106,.45); }
+  .st-review { background: rgba(224,90,72,.18); color: #f0a59a; border: 1px solid rgba(224,90,72,.45); }
 
   .controls { max-width: 760px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 12px; }
   .judge { display: flex; gap: 12px; }
@@ -127,7 +130,7 @@
   .modal .m-danger:hover, .modal .m-ok:hover { filter: brightness(1.08); }
   @media (max-width: 560px) {
     body { padding: 12px 10px calc(14px + env(safe-area-inset-bottom)); }
-    .face { padding: 22px 18px 56px; }
+    .face { padding: 20px 16px 18px; }
     .card { min-height: 340px; }
     .layer-block { padding: 7px 10px; font-size: 13px; }
     .nav { flex-wrap: wrap; }
@@ -322,9 +325,9 @@
     const st = progress[card.id];
     el.btnKnown.classList.toggle("active", st === "known");
     el.btnReview.classList.toggle("active", st === "review");
-    el.stateHint.innerHTML = st === "known" ? "✓ Marcada como <b>dominada</b>"
-      : st === "review" ? "↺ Marcada para <b>repasar</b>"
-      : "¿La sabías? Marcá abajo 👇";
+    el.stateHint.innerHTML = st === "known" ? '<span class="st st-known">✓ Dominada</span>'
+      : st === "review" ? '<span class="st st-review">↺ Para repasar</span>'
+      : '¿La sabías? Marcá abajo 👇';
 
     el.counter.textContent = (pos + 1) + " / " + list.length;
     const known = order.filter(id => progress[id] === "known").length;
