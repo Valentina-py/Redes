@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1729">
+<title>Estudio de Redes · Tarjetas interactivas</title>
+<style>
+  :root {
+    --bg: #0f1729;
+    --bg2: #16213e;
+    --card: #1b2740;
+    --text: #e8ecf4;
+    --muted: #9aa6c0;
+    --ring: rgba(255,255,255,.08);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, Arial, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #1d2c52 0%, var(--bg) 55%);
+    color: var(--text); min-height: 100vh;
+    padding: 40px 20px calc(40px + env(safe-area-inset-bottom));
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 36px; }
+  .badge {
+    display: inline-block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); border: 1px solid var(--ring); border-radius: 100px;
+    padding: 5px 14px; margin-bottom: 16px;
+  }
+  h1 { font-size: clamp(26px, 5vw, 38px); margin: 0 0 8px; font-weight: 800; letter-spacing: -.5px; }
+  .lead { color: var(--muted); font-size: 15px; max-width: 540px; margin: 0 auto; line-height: 1.5; }
+  .decks { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; margin-top: 34px; }
+  .deck {
+    display: block; text-decoration: none; color: inherit; position: relative; overflow: hidden;
+    background: var(--card); border: 1px solid var(--ring); border-radius: 18px; padding: 22px;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .deck:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,.4); border-color: rgba(255,255,255,.18); }
+  .deck .bar { position: absolute; inset: 0 auto 0 0; width: 6px; }
+  .deck .n { font-size: 12px; font-weight: 700; letter-spacing: .5px; opacity: .85; }
+  .deck h2 { font-size: 19px; margin: 10px 0 6px; line-height: 1.25; }
+  .deck p { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+  .deck .meta { display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+  .pill { background: rgba(255,255,255,.07); border-radius: 100px; padding: 4px 11px; font-weight: 600; }
+  .go { font-weight: 700; opacity: .9; }
+  .progress-mini { height: 5px; border-radius: 4px; background: rgba(255,255,255,.09); margin-top: 14px; overflow: hidden; }
+  .progress-mini > span { display: block; height: 100%; width: 0; border-radius: 4px; transition: width .4s ease; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 40px; line-height: 1.6; }
+  footer a { color: var(--muted); }
+  .reset { background: none; border: 1px solid var(--ring); color: var(--muted); border-radius: 100px;
+    padding: 6px 14px; font-size: 12px; cursor: pointer; margin-top: 8px; }
+  .reset:hover { color: var(--text); border-color: rgba(255,255,255,.25); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="badge">Redes Informáticas y Comunicación</span>
+    <h1>Tarjetas de estudio</h1>
+    <p class="lead">Elegí un mazo para repasar. Tocá una tarjeta para ver la respuesta, marcá lo que ya sabés y mezclá para autoevaluarte. Tu progreso se guarda en este dispositivo.</p>
+  </header>
+
+  <div class="decks" id="decks"></div>
+
+  <footer>
+    IES N.º 6023 · Capítulos 1 y 2 - TPs <br>
+    <button class="reset" id="reset">Borrar todo el progreso</button>
+  </footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const cont = document.getElementById("decks");
+
+  function loadProgress(id) {
+    try { return JSON.parse(localStorage.getItem("redes-progress-" + id)) || {}; }
+    catch { return {}; }
+  }
+
+  Object.values(DECKS).forEach(deck => {
+    const total = deck.cards.length;
+    const prog = loadProgress(deck.id);
+    const known = Object.values(prog).filter(v => v === "known").length;
+    const pct = total ? Math.round(known / total * 100) : 0;
+
+    const a = document.createElement("a");
+    a.className = "deck";
+    a.href = "study.html?deck=" + deck.id;
+    a.innerHTML = `
+      <span class="bar" style="background:linear-gradient(${deck.color},${deck.color2})"></span>
+      <div class="n" style="color:${deck.color2}">${deck.short.split("·")[0].trim()}</div>
+      <h2>${deck.short.split("·").slice(1).join("·").trim() || deck.short}</h2>
+      <p>${total} tarjetas para repasar</p>
+      <div class="meta">
+        <span class="pill">${known}/${total} dominadas</span>
+        <span class="go">Estudiar →</span>
+      </div>
+      <div class="progress-mini"><span style="width:${pct}%;background:linear-gradient(90deg,${deck.color},${deck.color2})"></span></div>
+    `;
+    cont.appendChild(a);
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    if (confirm("¿Borrar el progreso de todos los mazos?")) {
+      Object.keys(DECKS).forEach(id => localStorage.removeItem("redes-progress-" + id));
+      location.reload();
+    }
+  });
+</script>
+</body>
+</html>

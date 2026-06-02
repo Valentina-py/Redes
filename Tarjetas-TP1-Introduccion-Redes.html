@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Tarjetas de Estudio - TP1 Introducción a Redes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    margin: 0; padding: 20px;
+    background: #f0f0f0; color: #1a1a1a;
+  }
+  h1 { text-align: center; color: #6b1a3a; font-size: 22px; margin: 10px 0 4px; }
+  .subtitle { text-align: center; color: #555; font-size: 13px; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card {
+    border: 2px solid #6b1a3a; border-radius: 10px; padding: 12px 14px;
+    background: #fff; page-break-inside: avoid; break-inside: avoid;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .tag {
+    display: inline-block; background: #6b1a3a; color: #fff; font-size: 10px;
+    font-weight: bold; padding: 2px 8px; border-radius: 10px; margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+  .q { font-weight: bold; font-size: 13.5px; color: #6b1a3a; margin-bottom: 7px; line-height: 1.3; }
+  .a { font-size: 12.5px; line-height: 1.45; }
+  .a ul { margin: 4px 0; padding-left: 18px; }
+  .a li { margin-bottom: 2px; }
+  .a strong { color: #b8860b; }
+  .formula { background: #f7f0f3; border-left: 3px solid #6b1a3a; padding: 4px 8px; margin: 4px 0; font-family: "Consolas", monospace; font-size: 12px; }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .grid { gap: 8px; }
+    .card { box-shadow: none; }
+    h1 { font-size: 18px; }
+    @page { margin: 1cm; }
+  }
+/* ===== Tema oscuro (solo pantalla; al imprimir queda claro) ===== */
+@media screen {
+  body { background: #0f1729; color: #e8ecf4; }
+  h1 { color: #e597b3; }
+  .subtitle { color: #9aa6c0; }
+  .card { background: #1b2740; border-color: #9c3a5e; box-shadow: 0 6px 18px rgba(0,0,0,.40); }
+  .q { color: #e597b3; }
+  .a { color: #d7deec; }
+  .a strong { color: #e0b85a; }
+  .a em { color: #cfe6da; }
+  .formula { background: rgba(255,255,255,.06); color: #e8ecf4; border-left-color: #e597b3; }
+}
+</style>
+</head>
+<body>
+<h1>TP N° 1 — Introducción a las Redes</h1>
+<div class="subtitle">Redes Informáticas y Comunicación · IES N.º 6023 Loutaif · Tarjetas de estudio</div>
+
+<div class="grid">
+
+  <div class="card">
+    <span class="tag">1</span>
+    <div class="q">¿Diferencia entre host y sistema terminal? ¿Es un servidor web un sistema terminal?</div>
+    <div class="a">
+      <strong>Host:</strong> cualquier dispositivo conectado a la red con dirección IP que envía o recibe datos.<br>
+      <strong>Sistema terminal:</strong> dispositivos que usan directamente los usuarios o aplicaciones (PC, celular, servidor).<br>
+      <strong>Sí</strong>, un servidor web es sistema terminal: está en el extremo, recibe solicitudes y envía respuestas (páginas).
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">2</span>
+    <div class="q">Ejemplo de un protocolo diplomático.</div>
+    <div class="a">
+      Visita de un presidente a otro país:
+      <ul>
+        <li>Ceremonia de bienvenida oficial (himnos, banderas, guardia de honor).</li>
+        <li>Orden de precedencia (quién saluda primero).</li>
+        <li>Intercambio de discursos formales.</li>
+        <li>Reunión privada y luego conferencia de prensa.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">3</span>
+    <div class="q">¿Programa cliente y programa servidor? ¿El servidor solicita servicios al cliente?</div>
+    <div class="a">
+      <strong>Cliente:</strong> inicia la comunicación para solicitar un servicio o recurso.<br>
+      <strong>Servidor:</strong> recibe solicitudes de los clientes y responde brindando servicios o recursos.<br>
+      <strong>No:</strong> el servidor solo responde a las solicitudes, no las inicia.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">4</span>
+    <div class="q">Seis tecnologías de acceso, clasificadas.</div>
+    <div class="a">
+      <strong>Residencial:</strong> cable módem, fibra óptica.<br>
+      <strong>Empresarial:</strong> Ethernet, Wi-Fi.<br>
+      <strong>Móvil:</strong> redes 4G / 5G.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">5</span>
+    <div class="q">HFC: ¿velocidad dedicada o compartida? ¿Hay colisiones en el canal de descarga?</div>
+    <div class="a">
+      La velocidad es <strong>compartida</strong> entre los usuarios.<br>
+      <strong>No hay colisiones en descarga:</strong> la transmisión va en un solo sentido y no hay múltiples dispositivos transmitiendo por ese mismo canal.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">6</span>
+    <div class="q">Velocidad de Ethernet. ¿Pueden los usuarios transmitir continuamente a esa velocidad?</div>
+    <div class="a">
+      <ul>
+        <li>Ethernet clásica: <strong>10 Mbps</strong></li>
+        <li>Fast Ethernet: <strong>100 Mbps</strong></li>
+        <li>Gigabit Ethernet: <strong>1 Gbps</strong></li>
+        <li>10 Gigabit Ethernet: <strong>10 Gbps</strong></li>
+      </ul>
+      <strong>No:</strong> aunque la red tenga esa velocidad, no siempre se puede usar al máximo de forma continua (se comparte el medio).
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">7</span>
+    <div class="q">Medios físicos sobre los que se puede usar Ethernet.</div>
+    <div class="a">
+      <ul>
+        <li><strong>UTP</strong> (par trenzado de cobre).</li>
+        <li><strong>Fibra óptica.</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">8</span>
+    <div class="q">Acceso residencial: rango de velocidades y tipo (dedicada/compartida).</div>
+    <div class="a">
+      <ul>
+        <li><strong>Módem telefónico:</strong> hasta 56 kbps · dedicada.</li>
+        <li><strong>HFC:</strong> 10 Mbps – 1 Gbps · compartida.</li>
+        <li><strong>DSL:</strong> 1 – 100 Mbps · dedicada.</li>
+        <li><strong>FTTH:</strong> 100 Mbps – 10 Gbps · gen. dedicada.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">9</span>
+    <div class="q">Ventajas de conmutación de circuitos vs paquetes. Desventaja de TDM frente a FDM.</div>
+    <div class="a">
+      <strong>Ventajas de circuitos:</strong> ancho de banda dedicado, retardo constante, sin congestión, calidad de servicio estable.<br>
+      <strong>TDM:</strong> divide el canal en intervalos de tiempo, cada usuario transmite en su turno.<br>
+      <strong>FDM:</strong> divide el canal en bandas de frecuencia, todos transmiten a la vez en frecuencias distintas.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">10</span>
+    <div class="q">¿Por qué la conmutación de paquetes usa multiplexación estadística? Compárala con TDM.</div>
+    <div class="a">
+      Porque el ancho de banda se comparte <strong>dinámicamente según la demanda real</strong>.<br>
+      <strong>Estadística:</strong> sin turnos fijos, el canal se usa solo cuando hay datos, más eficiente, pero puede haber colas y pérdidas.<br>
+      <strong>TDM:</strong> turno fijo por usuario, ordenado y predecible, pero desperdicia capacidad si no se usa el turno.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">11</span>
+    <div class="q">Retardo terminal a terminal con un switch de almacenamiento y reenvío (enlaces R1 y R2, paquete L).</div>
+    <div class="a">
+      <div class="formula">Retardo = L/R1 + L/R2</div>
+      Es la suma de los retardos de transmisión de cada enlace, porque el switch debe <strong>recibir el paquete completo antes de reenviarlo</strong> (store-and-forward).
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">12</span>
+    <div class="q">¿Diferencia entre un ISP de nivel 1 y uno de nivel 2?</div>
+    <div class="a">
+      <strong>Nivel 1:</strong> los más grandes, cobertura global, no pagan a otros ISP, se conectan entre sí por <em>peering</em>.<br>
+      <strong>Nivel 2:</strong> regionales/intermedios, alcance limitado, <strong>pagan</strong> a los de nivel 1 para acceso completo (aunque también pueden hacer peering).
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">13</span>
+    <div class="q">Enlace 2 Mbps, usuarios a 1 Mbps activos el 20% del tiempo.</div>
+    <div class="a">
+      <strong>a)</strong> Con circuitos: soporta <strong>2 usuarios</strong> (2 Mbps / 1 Mbps).<br>
+      <strong>b)</strong> Con ≤2 usuarios no hay cola (no superan los 2 Mbps); con 3 sí, porque pueden superar el recurso.<br>
+      <strong>c)</strong> P(transmitir) = <strong>0,2</strong>.<br>
+      <strong>d)</strong> Los 3 a la vez: 0,2³ = <strong>0,008</strong>.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">14</span>
+    <div class="q">Componentes del retardo terminal a terminal. ¿Cuáles son constantes y cuáles variables?</div>
+    <div class="a">
+      Componentes: retardo de <strong>procesamiento, cola, transmisión y propagación</strong>.<br>
+      <strong>Constantes:</strong> procesamiento, transmisión y propagación.<br>
+      <strong>Variable:</strong> el de cola, porque depende de la congestión de la red.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">15</span>
+    <div class="q">Enlaces R1=500 kbps, R2=2 Mbps, R3=1 Mbps. Tasa y tiempo (archivo 4 MB).</div>
+    <div class="a">
+      <strong>a)</strong> Tasa = enlace más lento (cuello de botella) = <strong>500 kbps</strong>.<br>
+      <strong>b)</strong> 4 MB = 32 Mbit → 32.000.000 / 500.000 = <strong>64 s</strong>.<br>
+      <strong>c)</strong> Si R2 = 100 kbps (nuevo cuello de botella): 32.000.000 / 100.000 = <strong>320 s</strong>.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">16</span>
+    <div class="q">¿Cómo crea A los paquetes? ¿Qué dato usa el conmutador? Analogía con preguntar direcciones.</div>
+    <div class="a">
+      A divide el archivo en <strong>paquetes</strong>, y a cada uno le agrega una <strong>cabecera</strong> con la dirección de destino.<br>
+      El router usa la <strong>dirección de destino</strong> de la cabecera para decidir el enlace de salida.<br>
+      Analogía: cada paquete viaja independiente y en cada nodo se decide el siguiente paso con la info del momento.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">17</span>
+    <div class="q">Cinco tareas que puede realizar una capa. ¿Pueden repetirse en varias capas?</div>
+    <div class="a">
+      <ul>
+        <li>Control de errores</li>
+        <li>Control de flujo</li>
+        <li>Encapsulamiento de datos</li>
+        <li>Direccionamiento</li>
+        <li>Control de congestión</li>
+      </ul>
+      <strong>Sí</strong>, pueden superponerse en varias capas para mejorar confiabilidad y rendimiento.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">18</span>
+    <div class="q">Las cinco capas de la pila de Internet y su responsabilidad.</div>
+    <div class="a">
+      <ul>
+        <li><strong>Aplicación:</strong> comunicación entre aplicaciones (web, correo).</li>
+        <li><strong>Transporte:</strong> comunicación entre procesos; envío fiable, control de errores y flujo.</li>
+        <li><strong>Red:</strong> direccionamiento lógico y enrutamiento origen→destino.</li>
+        <li><strong>Enlace:</strong> transferencia entre nodos vecinos, acceso al medio.</li>
+        <li><strong>Física:</strong> transmite los bits por el medio físico.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">19</span>
+    <div class="q">Mensaje, segmento, datagrama y trama: ¿qué es cada uno?</div>
+    <div class="a">
+      <ul>
+        <li><strong>Mensaje</strong> (aplicación): info que genera la app.</li>
+        <li><strong>Segmento</strong> (transporte): mensaje + puertos y control de errores.</li>
+        <li><strong>Datagrama</strong> (red): segmento + direcciones IP para enrutar.</li>
+        <li><strong>Trama</strong> (enlace): datagrama + direcciones MAC y control de errores.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">20</span>
+    <div class="q">¿Qué capas procesa un router, un switch de enlace y un host?</div>
+    <div class="a">
+      <strong>Router:</strong> red, enlace y física.<br>
+      <strong>Switch de capa de enlace:</strong> enlace y física.<br>
+      <strong>Host:</strong> las cinco — aplicación, transporte, red, enlace y física.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">21</span>
+    <div class="q">¿Diferencia entre virus, gusano y caballo de Troya?</div>
+    <div class="a">
+      <strong>Virus:</strong> se adjunta a archivos/programas y se propaga al ejecutarlos.<br>
+      <strong>Gusano:</strong> se propaga solo por la red, sin intervención del usuario, aprovechando vulnerabilidades.<br>
+      <strong>Troyano:</strong> se presenta como legítimo pero oculta código malicioso que se ejecuta al instalarlo.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">22</span>
+    <div class="q">¿Cómo se crea una botnet y cómo se usa en un ataque DDoS?</div>
+    <div class="a">
+      <strong>Botnet:</strong> el atacante infecta muchos dispositivos con malware; quedan controlados remotamente sin que el usuario lo sepa (red de "bots").<br>
+      <strong>DDoS:</strong> usa la botnet para enviar tráfico masivo a un servidor al mismo tiempo, saturando sus recursos hasta dejarlo fuera de servicio.
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">23</span>
+    <div class="q">Victoria intercepta y reenvía paquetes entre Alicia y Benito. ¿Qué daños puede causar?</div>
+    <div class="a">
+      Es un ataque <strong>man-in-the-middle</strong>. Puede:
+      <ul>
+        <li>Interceptar datos</li>
+        <li>Modificar mensajes</li>
+        <li>Suplantar identidad</li>
+        <li>Insertar información falsa</li>
+        <li>Repetir mensajes (replay)</li>
+        <li>Interrumpir la comunicación</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
