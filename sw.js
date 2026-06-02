@@ -4,9 +4,10 @@
      internet, usa la copia guardada). Así nunca ves tarjetas viejas estando online.
    - Íconos/manifest: "cache-first" (carga instantánea).
    Al cambiar el contenido, subí el número de versión (CACHE) para forzar refresco. */
-const CACHE = "redes-v2";
+const CACHE = "redes-v3";
 const ASSETS = [
   "./", "./index.html", "./study.html", "./data.js",
+  "./practica.html", "./practice-data.js",
   "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-180.png"
 ];
 

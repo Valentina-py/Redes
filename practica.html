@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1729">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Redes">
+<title>Práctica · Tarjetas de Redes</title>
+<style>
+  :root { --bg:#0f1729; --text:#e8ecf4; --muted:#9aa6c0; --ring:rgba(255,255,255,.10);
+    --accent:#7c5cff; --accent2:#9b86ff; --ok:#2fae6a; --bad:#e05a48; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body { font-family: "Segoe UI", system-ui, Arial, sans-serif; color: var(--text); min-height: 100vh;
+    background: radial-gradient(1100px 560px at 50% -8%, #251c4d 0%, var(--bg) 58%);
+    display: flex; flex-direction: column; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); }
+  .top { display: flex; align-items: center; gap: 12px; max-width: 720px; margin: 0 auto; width: 100%; }
+  .home { text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 600;
+    padding: 9px 14px; border-radius: 10px; border: 1px solid var(--ring); white-space: nowrap; }
+  .home::before { content: "\2190"; margin-right: 6px; }
+  .home:hover { color: var(--text); background: rgba(255,255,255,.07); }
+  .titlebox { flex: 1; min-width: 0; }
+  .titlebox h1 { font-size: 15px; margin: 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .titlebox .sub { font-size: 12px; color: var(--muted); }
+  .counter { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .counter.timer.warn { color: #ffcf5c; }
+  .counter.timer.danger { color: var(--bad); font-weight: 700; }
+
+  .progress { max-width: 720px; margin: 14px auto 0; width: 100%; height: 6px; border-radius: 5px;
+    background: rgba(255,255,255,.08); overflow: hidden; }
+  .progress > span { display: block; height: 100%; width: 0; border-radius: 5px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .35s ease; }
+
+  .stage { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px 0; }
+  .wrap { width: 100%; max-width: 720px; }
+
+  /* HOME */
+  .intro { text-align: center; margin-bottom: 22px; }
+  .intro h2 { font-size: clamp(22px,5vw,30px); margin: 0 0 6px; font-weight: 800; }
+  .intro p { color: var(--muted); font-size: 14px; margin: 0; }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .mode { text-align: left; cursor: pointer; background: #1b2740; border: 1px solid var(--ring);
+    border-radius: 16px; padding: 18px; color: inherit; transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
+  .mode:hover { transform: translateY(-3px); border-color: rgba(155,134,255,.5); box-shadow: 0 14px 32px rgba(0,0,0,.4); }
+  .mode .emo { font-size: 26px; }
+  .mode h3 { margin: 8px 0 4px; font-size: 16px; }
+  .mode p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+  .mode .best { display:inline-block; margin-top:10px; font-size:11px; font-weight:700; color:var(--accent2);
+    background: rgba(124,92,255,.15); border-radius:100px; padding:3px 10px; }
+
+  /* QUIZ */
+  .qcard { background: linear-gradient(160deg,#1d2a48,#16203a); border: 1px solid var(--ring);
+    border-radius: 20px; padding: 26px 24px; box-shadow: 0 22px 55px rgba(0,0,0,.45); }
+  .qlabel { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .qtext { font-size: clamp(17px,4vw,22px); font-weight: 700; line-height: 1.35; margin-bottom: 18px; }
+  .opts { display: flex; flex-direction: column; gap: 10px; }
+  .opt { text-align: left; width: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--ring);
+    color: var(--text); border-radius: 12px; padding: 13px 16px; font-size: 14.5px; cursor: pointer;
+    transition: background .12s ease, border-color .12s ease; display: flex; align-items: center; gap: 10px; }
+  .opt:hover:not(:disabled) { background: rgba(255,255,255,.1); }
+  .opt:disabled { cursor: default; }
+  .opt .mk { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--muted); flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; }
+  .opt.correct { background: rgba(47,174,106,.16); border-color: var(--ok); }
+  .opt.correct .mk { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .opt.wrong { background: rgba(224,90,72,.16); border-color: var(--bad); }
+  .opt.wrong .mk { background: var(--bad); border-color: var(--bad); color: #fff; }
+  .explain { margin-top: 16px; font-size: 13.5px; line-height: 1.5; color: #d7deec;
+    background: rgba(255,255,255,.05); border-left: 3px solid var(--accent2); border-radius: 8px;
+    padding: 11px 14px; display: none; }
+  .explain.show { display: block; }
+  .explain b { color: var(--accent2); }
+  .nextrow { display: flex; justify-content: flex-end; margin-top: 18px; }
+  .next { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none;
+    border-radius: 12px; padding: 12px 24px; font-size: 15px; font-weight: 700; cursor: pointer; opacity: .5; pointer-events: none; }
+  .next.ready { opacity: 1; pointer-events: auto; }
+  .next:hover { filter: brightness(1.08); }
+
+  /* RESULT */
+  .result { text-align: center; }
+  .result .big { font-size: 60px; margin-bottom: 4px; }
+  .result h2 { margin: 0 0 6px; font-size: 24px; }
+  .result .score { font-size: 40px; font-weight: 800; margin: 10px 0; }
+  .result .score small { font-size: 18px; color: var(--muted); font-weight: 600; }
+  .result p { color: var(--muted); margin: 0 0 22px; }
+  .result .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn { background: rgba(255,255,255,.07); border: 1px solid var(--ring); color: var(--text);
+    border-radius: 12px; padding: 12px 18px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
+  .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; }
+  .btn:hover { filter: brightness(1.08); }
+  .hide { display: none !important; }
+  @media (max-width: 480px) {
+    .modes { grid-template-columns: 1fr; }
+    .qcard { padding: 22px 18px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="top">
+    <a class="home" href="index.html" title="Volver a la pantalla principal">Inicio</a>
+    <div class="titlebox">
+      <h1 id="title">Práctica</h1>
+      <div class="sub" id="sub">Elegí un modo</div>
+    </div>
+    <div class="counter" id="counter"></div>
+  </div>
+  <div class="progress"><span id="bar"></span></div>
+
+  <div class="stage">
+    <div class="wrap">
+
+      <!-- HOME -->
+      <div id="home">
+        <div class="intro">
+          <h2>🎯 Modo práctica</h2>
+          <p>Poné a prueba lo que estudiaste. Elegí un modo:</p>
+        </div>
+        <div class="modes">
+          <button class="mode" data-mode="quiz">
+            <div class="emo">📝</div><h3>Opción múltiple</h3>
+            <p>Preguntas con 4 opciones y corrección al instante.</p>
+            <div class="best hide" id="best-quiz"></div>
+          </button>
+          <button class="mode" data-mode="layers">
+            <div class="emo">📚</div><h3>¿Qué capa?</h3>
+            <p>Clasificá cada protocolo en su capa. Practica el Ej. 1.</p>
+            <div class="best hide" id="best-layers"></div>
+          </button>
+          <button class="mode" data-mode="tf">
+            <div class="emo">✅</div><h3>Verdadero / Falso</h3>
+            <p>Afirmaciones para responder rápido, con explicación.</p>
+            <div class="best hide" id="best-tf"></div>
+          </button>
+          <button class="mode" data-mode="exam">
+            <div class="emo">⏱️</div><h3>Examen cronometrado</h3>
+            <p>10 preguntas al azar con tiempo límite. ¡Simulacro!</p>
+            <div class="best hide" id="best-exam"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- QUIZ -->
+      <div id="quiz" class="hide">
+        <div class="qcard">
+          <div class="qlabel" id="qlabel">Pregunta</div>
+          <div class="qtext" id="qtext"></div>
+          <div class="opts" id="opts"></div>
+          <div class="explain" id="explain"></div>
+          <div class="nextrow"><button class="next" id="next">Siguiente →</button></div>
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div id="result" class="hide">
+        <div class="result">
+          <div class="big" id="rEmoji">🎉</div>
+          <h2 id="rTitle">¡Terminaste!</h2>
+          <div class="score" id="rScore"></div>
+          <p id="rMsg"></p>
+          <div class="row">
+            <button class="btn primary" id="rRetry">Reintentar</button>
+            <button class="btn" id="rHome">Otro modo</button>
+            <a class="btn" href="index.html">Ir a estudiar</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script src="practice-data.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  }
+
+  const el = {
+    title: document.getElementById("title"), sub: document.getElementById("sub"),
+    counter: document.getElementById("counter"), bar: document.getElementById("bar"),
+    home: document.getElementById("home"), quiz: document.getElementById("quiz"), result: document.getElementById("result"),
+    qlabel: document.getElementById("qlabel"), qtext: document.getElementById("qtext"),
+    opts: document.getElementById("opts"), explain: document.getElementById("explain"), next: document.getElementById("next"),
+    rEmoji: document.getElementById("rEmoji"), rTitle: document.getElementById("rTitle"),
+    rScore: document.getElementById("rScore"), rMsg: document.getElementById("rMsg"),
+  };
+
+  const MODES = {
+    quiz:   { name: "Opción múltiple", build: () => shuffle(QUIZ.map(toItem)) },
+    layers: { name: "¿Qué capa?", build: () => shuffle(LAYERS.map(p => ({
+                q: `¿A qué capa pertenece <b>${p.protocol}</b>?`, options: LAYER_OPTS,
+                correct: LAYER_OPTS.indexOf(p.layer), explain: `${p.protocol} → capa de <b>${p.layer}</b>.` }))) },
+    tf:     { name: "Verdadero / Falso", build: () => shuffle(TF.map(t => ({
+                q: t.statement, options: ["Verdadero", "Falso"], correct: t.answer ? 0 : 1, explain: t.explain }))) },
+    exam:   { name: "Examen cronometrado", timed: 300, build: () => shuffle(QUIZ.map(toItem)).slice(0, 10) },
+  };
+  function toItem(x){ return { q: x.q, options: x.options, correct: x.correct, explain: x.explain }; }
+  function shuffle(a){ a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+  let mode, items, idx, score, answered, timerId, timeLeft;
+
+  function bestKey(m){ return "redes-best-" + m; }
+  function showBest(){
+    for (const m of Object.keys(MODES)){
+      const v = localStorage.getItem(bestKey(m));
+      const box = document.getElementById("best-" + m);
+      if (v){ box.textContent = "Mejor: " + v; box.classList.remove("hide"); }
+    }
+  }
+
+  function start(m){
+    mode = m; items = MODES[m].build(); idx = 0; score = 0;
+    el.title.textContent = MODES[m].name;
+    el.home.classList.add("hide"); el.result.classList.add("hide"); el.quiz.classList.remove("hide");
+    if (MODES[m].timed){ timeLeft = MODES[m].timed; startTimer(); } else { el.counter.className = "counter"; }
+    render();
+  }
+
+  function startTimer(){
+    el.counter.className = "counter timer";
+    paintTimer();
+    timerId = setInterval(() => {
+      timeLeft--;
+      paintTimer();
+      if (timeLeft <= 0){ clearInterval(timerId); finish(true); }
+    }, 1000);
+  }
+  function paintTimer(){
+    const mm = Math.floor(timeLeft/60), ss = timeLeft%60;
+    el.counter.textContent = "⏱ " + mm + ":" + String(ss).padStart(2,"0");
+    el.counter.classList.toggle("warn", timeLeft <= 60 && timeLeft > 20);
+    el.counter.classList.toggle("danger", timeLeft <= 20);
+  }
+
+  function render(){
+    const it = items[idx];
+    answered = false;
+    el.qlabel.textContent = "Pregunta " + (idx+1) + " de " + items.length;
+    el.qtext.innerHTML = it.q;
+    el.explain.classList.remove("show"); el.explain.innerHTML = it.explain;
+    el.next.classList.remove("ready");
+    el.next.textContent = idx === items.length-1 ? "Ver resultado →" : "Siguiente →";
+    if (!MODES[mode].timed){ el.counter.className = "counter"; el.counter.textContent = "Aciertos: " + score; }
+    el.opts.innerHTML = "";
+    it.options.forEach((opt, i) => {
+      const b = document.createElement("button");
+      b.className = "opt";
+      b.innerHTML = '<span class="mk"></span><span>' + opt + '</span>';
+      b.onclick = () => answer(i, b);
+      el.opts.appendChild(b);
+    });
+    el.bar.style.width = Math.round(idx / items.length * 100) + "%";
+  }
+
+  function answer(i, btn){
+    if (answered) return;
+    answered = true;
+    const it = items[idx];
+    const buttons = [...el.opts.children];
+    buttons.forEach(b => b.disabled = true);
+    if (i === it.correct){
+      score++;
+      btn.classList.add("correct");
+      btn.querySelector(".mk").textContent = "✓";
+    } else {
+      btn.classList.add("wrong");
+      btn.querySelector(".mk").textContent = "✗";
+      buttons[it.correct].classList.add("correct");
+      buttons[it.correct].querySelector(".mk").textContent = "✓";
+    }
+    if (!MODES[mode].timed) el.counter.textContent = "Aciertos: " + score;
+    el.explain.classList.add("show");
+    el.next.classList.add("ready");
+  }
+
+  el.next.addEventListener("click", () => {
+    if (!answered) return;
+    if (idx === items.length-1){ finish(false); }
+    else { idx++; render(); }
+  });
+
+  function finish(timeUp){
+    if (timerId){ clearInterval(timerId); timerId = null; }
+    el.quiz.classList.add("hide"); el.result.classList.remove("hide");
+    el.bar.style.width = "100%";
+    const total = items.length, pct = Math.round(score/total*100);
+    el.rScore.innerHTML = score + " <small>/ " + total + "</small>";
+    el.rEmoji.textContent = timeUp ? "⏰" : pct >= 80 ? "🏆" : pct >= 50 ? "👍" : "📚";
+    el.rTitle.textContent = timeUp ? "¡Se acabó el tiempo!" : pct >= 80 ? "¡Excelente!" : pct >= 50 ? "¡Bien!" : "A seguir repasando";
+    el.rMsg.textContent = "Acertaste el " + pct + "% de las preguntas.";
+    el.counter.className = "counter"; el.counter.textContent = "";
+    // mejor puntaje
+    const label = score + "/" + total;
+    const prev = localStorage.getItem(bestKey(mode));
+    const prevScore = prev ? parseInt(prev.split("/")[0], 10) : -1;
+    if (score > prevScore) localStorage.setItem(bestKey(mode), label);
+  }
+
+  document.querySelectorAll(".mode").forEach(b => b.addEventListener("click", () => start(b.dataset.mode)));
+  document.getElementById("rRetry").addEventListener("click", () => start(mode));
+  document.getElementById("rHome").addEventListener("click", () => {
+    el.result.classList.add("hide"); el.home.classList.remove("hide");
+    el.title.textContent = "Práctica"; el.counter.textContent = ""; el.bar.style.width = "0";
+    showBest();
+  });
+
+  showBest();
+</script>
+</body>
+</html>

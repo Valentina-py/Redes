@@ -53,6 +53,16 @@
   .go { font-weight: 700; opacity: .9; }
   .progress-mini { height: 5px; border-radius: 4px; background: rgba(255,255,255,.09); margin-top: 14px; overflow: hidden; }
   .progress-mini > span { display: block; height: 100%; width: 0; border-radius: 4px; transition: width .4s ease; }
+  .practice-cta { display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit;
+    margin-top: 18px; padding: 18px 22px; border-radius: 18px; border: 1px solid rgba(155,134,255,.35);
+    background: linear-gradient(135deg, rgba(124,92,255,.22), rgba(58,123,213,.14));
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+  .practice-cta:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(0,0,0,.4); border-color: rgba(155,134,255,.6); }
+  .practice-cta .emo { font-size: 30px; }
+  .practice-cta .txt { flex: 1; }
+  .practice-cta h2 { margin: 0 0 3px; font-size: 18px; }
+  .practice-cta p { margin: 0; font-size: 13px; color: var(--muted); }
+  .practice-cta .arrow { font-weight: 700; color: #9b86ff; }
   footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 40px; line-height: 1.6; }
   footer a { color: var(--muted); }
   .reset { background: none; border: 1px solid var(--ring); color: var(--muted); border-radius: 100px;
@@ -89,6 +99,15 @@
   </header>
 
   <div class="decks" id="decks"></div>
+
+  <a class="practice-cta" href="practica.html">
+    <span class="emo">🎯</span>
+    <span class="txt">
+      <h2>Modo práctica</h2>
+      <p>Quiz, ¿qué capa?, verdadero/falso y examen cronometrado.</p>
+    </span>
+    <span class="arrow">Practicar →</span>
+  </a>
 
   <footer>
     IES N.º 6023 · Capítulos 1 y 2 - TPs <br>
