@@ -15,8 +15,18 @@ Web interactiva de flashcards (IES N.º 6023 Loutaif · Caps. 1 y 2).
 - Flechas ← → o deslizar en el celular para cambiar de tarjeta.
 - El progreso se guarda en el navegador (localStorage).
 
+## Instalar como app (PWA) y usar sin internet
+La web es una **PWA**: se puede instalar en el celu/compu y funciona **offline**.
+- **Android (Chrome):** entrá al sitio → menú ⋮ → *Instalar app* / *Agregar a pantalla de inicio*.
+- **iPhone (Safari):** botón Compartir → *Agregar a inicio*.
+- **PC (Chrome/Edge):** ícono de instalar ⊕ en la barra de direcciones.
+
+Una vez instalada, abre a pantalla completa y guarda las tarjetas para estudiar sin conexión.
+> Al cambiar el contenido (`data.js`), subí el número de versión `CACHE` en `sw.js` (ej. `redes-v2`) para que se refresque en los dispositivos.
+
 ## Probar en tu compu
 Abrí `index.html` directamente en el navegador. ¡Listo!
+> Nota: la instalación/offline solo funciona servido por **https** (Vercel), no abriendo el archivo local.
 
 ## Subir a Vercel
 Es un sitio estático, no necesita build.

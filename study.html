@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f1729">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Redes">
 <title>Estudiar · Tarjetas de Redes</title>
 <style>
   :root {
@@ -233,6 +239,11 @@
   }
   _modal.addEventListener("click", e => { if (e.target === _modal) _closeModal(); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && _modal.classList.contains("show")) _closeModal(); });
+
+  // Service worker (PWA / offline)
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  }
 
   const params = new URLSearchParams(location.search);
   const deckId = params.get("deck") || "tp1";
