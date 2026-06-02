@@ -80,6 +80,8 @@
   .review { background: linear-gradient(135deg, #c0392b, #e05a48); }
   .known  { background: linear-gradient(135deg, #1e7a48, #2fae6a); }
   .judge button:hover { filter: brightness(1.08); }
+  .judge button.active { box-shadow: 0 0 0 3px rgba(255,255,255,.55), 0 6px 16px rgba(0,0,0,.35); }
+  .judge button.active::after { content: " ✓"; }
   .nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .nav button, .nav a { background: rgba(255,255,255,.06); border: 1px solid var(--ring); color: var(--text);
     border-radius: 12px; padding: 11px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
@@ -98,6 +100,25 @@
     border-radius: 12px; padding: 12px 18px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
   .done .primary { background: linear-gradient(135deg, #1e7a48, #2fae6a); border: none; }
   .hide { display: none !important; }
+  /* ===== Diálogo propio (reemplaza alert/confirm del navegador) ===== */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(6,10,20,.66); backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center; padding: 22px; z-index: 50;
+    opacity: 0; pointer-events: none; transition: opacity .18s ease; }
+  .modal-overlay.show { opacity: 1; pointer-events: auto; }
+  .modal { width: 100%; max-width: 380px; background: linear-gradient(160deg, #1d2a48, #15203a);
+    border: 1px solid var(--ring); border-radius: 18px; padding: 24px 22px 20px; text-align: center;
+    box-shadow: 0 30px 70px rgba(0,0,0,.55); transform: translateY(10px) scale(.97); transition: transform .2s ease; }
+  .modal-overlay.show .modal { transform: translateY(0) scale(1); }
+  .modal .m-icon { font-size: 34px; margin-bottom: 8px; }
+  .modal .m-msg { font-size: 15px; line-height: 1.5; color: var(--text); margin-bottom: 20px; }
+  .modal .m-actions { display: flex; gap: 10px; }
+  .modal .m-btn { flex: 1; border: none; border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: filter .12s ease, background .12s ease; }
+  .modal .m-cancel { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid var(--ring); }
+  .modal .m-cancel:hover { background: rgba(255,255,255,.15); }
+  .modal .m-danger { background: linear-gradient(135deg, #c0392b, #e05a48); color: #fff; }
+  .modal .m-ok { background: linear-gradient(135deg, #1e7a48, #2fae6a); color: #fff; }
+  .modal .m-danger:hover, .modal .m-ok:hover { filter: brightness(1.08); }
   @media (max-width: 560px) {
     body { padding: 12px 10px calc(14px + env(safe-area-inset-bottom)); }
     .face { padding: 22px 18px 56px; }
@@ -175,8 +196,44 @@
     </div>
   </div>
 
+  <!-- Diálogo propio -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="m-icon" id="modalIcon">🗑️</div>
+      <div class="m-msg" id="modalMsg"></div>
+      <div class="m-actions" id="modalActions"></div>
+    </div>
+  </div>
+
 <script src="data.js"></script>
 <script>
+  /* ---- Diálogo propio: reemplaza confirm()/alert() del navegador ---- */
+  const _modal = document.getElementById("modal");
+  const _mIcon = document.getElementById("modalIcon");
+  const _mMsg = document.getElementById("modalMsg");
+  const _mActions = document.getElementById("modalActions");
+  function _closeModal(){ _modal.classList.remove("show"); _mActions.innerHTML = ""; }
+  function uiConfirm(msg, { ok = "Sí, borrar", cancel = "Cancelar", icon = "🗑️", danger = true } = {}){
+    return new Promise(resolve => {
+      _mIcon.textContent = icon; _mMsg.innerHTML = msg; _mActions.innerHTML = "";
+      const c = document.createElement("button"); c.className = "m-btn m-cancel"; c.textContent = cancel;
+      const o = document.createElement("button"); o.className = "m-btn " + (danger ? "m-danger" : "m-ok"); o.textContent = ok;
+      c.onclick = () => { _closeModal(); resolve(false); };
+      o.onclick = () => { _closeModal(); resolve(true); };
+      _mActions.append(c, o); _modal.classList.add("show"); o.focus();
+    });
+  }
+  function uiAlert(msg, { ok = "Entendido", icon = "🎉" } = {}){
+    return new Promise(resolve => {
+      _mIcon.textContent = icon; _mMsg.innerHTML = msg; _mActions.innerHTML = "";
+      const o = document.createElement("button"); o.className = "m-btn m-ok"; o.textContent = ok;
+      o.onclick = () => { _closeModal(); resolve(); };
+      _mActions.append(o); _modal.classList.add("show"); o.focus();
+    });
+  }
+  _modal.addEventListener("click", e => { if (e.target === _modal) _closeModal(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && _modal.classList.contains("show")) _closeModal(); });
+
   const params = new URLSearchParams(location.search);
   const deckId = params.get("deck") || "tp1";
   const deck = DECKS[deckId] || DECKS.tp1;
@@ -276,10 +333,14 @@
   function mark(state){
     const list = activeList();
     const card = all[list[pos]];
-    progress[card.id] = (progress[card.id] === state) ? null : state;
+    const newState = (progress[card.id] === state) ? null : state;
+    progress[card.id] = newState;
     save();
-    // avanzar automáticamente al marcar "lo sé"
-    if (progress[card.id] === "known"){ setTimeout(() => go(1), 180); }
+    // feedback visual inmediato en los botones
+    el.btnKnown.classList.toggle("active", newState === "known");
+    el.btnReview.classList.toggle("active", newState === "review");
+    // al marcar (sea "lo sé" o "repasar") avanza a la siguiente; si se desmarca, solo refresca
+    if (newState){ setTimeout(() => go(1), 220); }
     else render();
   }
 
@@ -308,11 +369,13 @@
   });
   el.onlyReview.addEventListener("click", () => {
     onlyPending = !onlyPending; pos = 0;
-    if (onlyPending && activeList().length === 0){ onlyPending = false; alert("¡No quedan tarjetas pendientes! Ya las dominás todas."); }
+    if (onlyPending && activeList().length === 0){ onlyPending = false; uiAlert("¡No te quedan tarjetas pendientes! Ya las dominás todas. 🙌", { icon: "🎉" }); }
     render();
   });
-  document.getElementById("restart").addEventListener("click", () => {
-    if (confirm("¿Borrar el progreso de este mazo y empezar de nuevo?")){ progress = {}; save(); onlyPending = false; pos = 0; order = all.map(c=>c.id); render(); }
+  document.getElementById("restart").addEventListener("click", async () => {
+    if (await uiConfirm("¿Querés borrar tu progreso de este mazo y empezar de nuevo?", { ok: "Sí, empezar de nuevo", icon: "🔄" })){
+      progress = {}; save(); onlyPending = false; pos = 0; order = all.map(c=>c.id); render();
+    }
   });
   document.getElementById("againReview").addEventListener("click", () => { onlyPending = true; pos = 0;
     if (activeList().length === 0){ onlyPending = false; } render(); });

@@ -52,6 +52,23 @@
   .reset { background: none; border: 1px solid var(--ring); color: var(--muted); border-radius: 100px;
     padding: 6px 14px; font-size: 12px; cursor: pointer; margin-top: 8px; }
   .reset:hover { color: var(--text); border-color: rgba(255,255,255,.25); }
+  /* ===== Diálogo propio (reemplaza confirm del navegador) ===== */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(6,10,20,.66); backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center; padding: 22px; z-index: 50;
+    opacity: 0; pointer-events: none; transition: opacity .18s ease; }
+  .modal-overlay.show { opacity: 1; pointer-events: auto; }
+  .modal { width: 100%; max-width: 380px; background: linear-gradient(160deg, #1d2a48, #15203a);
+    border: 1px solid var(--ring); border-radius: 18px; padding: 24px 22px 20px; text-align: center;
+    box-shadow: 0 30px 70px rgba(0,0,0,.55); transform: translateY(10px) scale(.97); transition: transform .2s ease; }
+  .modal-overlay.show .modal { transform: translateY(0) scale(1); }
+  .modal .m-icon { font-size: 34px; margin-bottom: 8px; }
+  .modal .m-msg { font-size: 15px; line-height: 1.5; color: var(--text); margin-bottom: 20px; }
+  .modal .m-actions { display: flex; gap: 10px; }
+  .modal .m-btn { flex: 1; border: none; border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .modal .m-cancel { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid var(--ring); }
+  .modal .m-cancel:hover { background: rgba(255,255,255,.15); }
+  .modal .m-danger { background: linear-gradient(135deg, #c0392b, #e05a48); color: #fff; }
+  .modal .m-danger:hover { filter: brightness(1.08); }
 </style>
 </head>
 <body>
@@ -70,8 +87,33 @@
   </footer>
 </div>
 
+  <!-- Diálogo propio -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="m-icon">🗑️</div>
+      <div class="m-msg" id="modalMsg"></div>
+      <div class="m-actions" id="modalActions"></div>
+    </div>
+  </div>
+
 <script src="data.js"></script>
 <script>
+  /* ---- Diálogo propio: reemplaza confirm() del navegador ---- */
+  const _modal = document.getElementById("modal");
+  const _mMsg = document.getElementById("modalMsg");
+  const _mActions = document.getElementById("modalActions");
+  function uiConfirm(msg, { ok = "Sí, borrar", cancel = "Cancelar" } = {}){
+    return new Promise(resolve => {
+      _mMsg.innerHTML = msg; _mActions.innerHTML = "";
+      const c = document.createElement("button"); c.className = "m-btn m-cancel"; c.textContent = cancel;
+      const o = document.createElement("button"); o.className = "m-btn m-danger"; o.textContent = ok;
+      c.onclick = () => { _modal.classList.remove("show"); resolve(false); };
+      o.onclick = () => { _modal.classList.remove("show"); resolve(true); };
+      _mActions.append(c, o); _modal.classList.add("show"); o.focus();
+    });
+  }
+  _modal.addEventListener("click", e => { if (e.target === _modal) _modal.classList.remove("show"); });
+
   const cont = document.getElementById("decks");
 
   function loadProgress(id) {
@@ -102,8 +144,8 @@
     cont.appendChild(a);
   });
 
-  document.getElementById("reset").addEventListener("click", () => {
-    if (confirm("¿Borrar el progreso de todos los mazos?")) {
+  document.getElementById("reset").addEventListener("click", async () => {
+    if (await uiConfirm("¿Querés borrar el progreso de <b>todos</b> los mazos? Esta acción no se puede deshacer.", { ok: "Sí, borrar todo" })) {
       Object.keys(DECKS).forEach(id => localStorage.removeItem("redes-progress-" + id));
       location.reload();
     }

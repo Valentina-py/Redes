@@ -5,7 +5,7 @@ Web interactiva de flashcards (IES N.º 6023 Loutaif · Caps. 1 y 2).
 ## Mazos
 - **TP 1** — Introducción a las Redes (23 tarjetas)
 - **TP 2** — Capa de Aplicación (21 tarjetas)
-- **Parcial** — Teoría primer parcial (8 tarjetas)
+- **Repaso** — Teoría general (32 tarjetas)
 
 ## Cómo se usa
 - Tocá la tarjeta (o **Espacio**) para girarla y ver la respuesta.
@@ -36,7 +36,7 @@ vercel --prod # publicar
 
 ## Archivos
 - `index.html` — página de inicio (selector de mazos)
-- `study.html` — modo estudio interactivo (`?deck=tp1|tp2|parcial`)
+- `study.html` — modo estudio interactivo (`?deck=tp1|tp2|repaso`)
 - `data.js` — contenido de todas las tarjetas (editá acá para cambiar preguntas/respuestas)
 - `vercel.json` — config de despliegue
 - Los `Tarjetas-*.html` originales quedan como versión imprimible.

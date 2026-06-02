@@ -365,9 +365,9 @@ const DECKS = {
     ]
   },
 
-  /* ========================== PARCIAL ========================== */
-  parcial: {
-    id: "parcial",
+  /* ========================== REPASO ========================== */
+  repaso: {
+    id: "repaso",
     title: "Repaso de Teoría general",
     short: "Repaso · Teoría general",
     color: "#1a5b3a",
