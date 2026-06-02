@@ -143,26 +143,35 @@
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   let deferredPrompt = null;
 
+  // El botón se muestra siempre que no esté ya instalada (no dependemos del evento,
+  // porque navegadores como Brave no siempre lo disparan).
+  if (!isStandalone) installBtn.classList.remove("hide");
+
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
-    deferredPrompt = e;
+    deferredPrompt = e;            // si llega, podremos abrir el instalador nativo
     if (!isStandalone) installBtn.classList.remove("hide");
   });
   window.addEventListener("appinstalled", () => { installBtn.classList.add("hide"); deferredPrompt = null; });
 
-  // iPhone (Safari) no dispara beforeinstallprompt: mostramos el botón con instrucciones
-  if (isIOS && !isStandalone) installBtn.classList.remove("hide");
+  const isBrave = !!(navigator.brave && navigator.brave.isBrave);
 
   installBtn.addEventListener("click", async () => {
+    // 1) Si el navegador permite el instalador automático (Chrome/Edge), lo abrimos.
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       deferredPrompt = null;
       if (outcome === "accepted") installBtn.classList.add("hide");
-    } else if (isIOS) {
-      uiInfo("Para instalar en iPhone:<ol><li>Tocá el botón <b>Compartir</b> (el cuadradito con la flecha ↑).</li><li>Bajá y tocá <b>«Agregar a inicio»</b>.</li></ol>");
+      return;
+    }
+    // 2) Si no (Brave, iPhone, Firefox…), mostramos los pasos manuales.
+    if (isIOS) {
+      uiInfo("En iPhone (Safari):<ol><li>Tocá <b>Compartir</b> (el cuadradito con la flecha ↑, abajo).</li><li>Bajá y tocá <b>«Agregar a inicio»</b>.</li></ol>");
+    } else if (isBrave) {
+      uiInfo("En <b>Brave</b>:<ol><li><b>Celular:</b> menú <b>⋮</b> (abajo o arriba) → <b>«Agregar a la pantalla de inicio»</b>.</li><li><b>Compu:</b> menú <b>☰/⋮</b> → <b>«Instalar Tarjetas de Redes…»</b> (o el ícono ⊕ en la barra de direcciones).</li></ol>", "🦁");
     } else {
-      uiInfo("Para instalarla:<ol><li>Abrí el menú <b>⋮</b> del navegador (arriba a la derecha).</li><li>Elegí <b>«Instalar app»</b> o <b>«Agregar a la pantalla principal»</b>.</li></ol>Si no aparece, puede que ya esté instalada. 🙂", "💡");
+      uiInfo("Para instalarla:<ol><li>Fijate el ícono de instalar <b>⊕</b> en la barra de direcciones (al lado de la URL).</li><li>O abrí el menú <b>⋮</b> → <b>«Instalar app»</b> / <b>«Agregar a la pantalla principal»</b>.</li></ol>", "💡");
     }
   });
 
