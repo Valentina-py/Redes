@@ -24,6 +24,7 @@
     lab: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M6.5 8.5l2.2 2.2-2.2 2.2M12 13h4"/>',
     play: '<path d="M7 5v14l11-7z"/>',
     build: '<rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><path d="M11 7h4a2 2 0 0 1 2 2v4"/>',
+    trophy: '<path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M5 5H3v2a3 3 0 0 0 3 3M19 5h2v2a3 3 0 0 1-3 3"/>',
     cards: '<rect x="3" y="7" width="14" height="13" rx="2"/><path d="M7 4h14v13"/>',
     quiz: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 11 2.5 2.5L15 9"/>',
     practice: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
@@ -62,7 +63,40 @@
   progress.labs = progress.labs || {};
   progress.labSim = progress.labSim || {};
   progress.build = progress.build || {};
+  progress.game = progress.game || {};       // mejor puntaje de juegos (capas)
+  progress.cards = progress.cards || {};     // mazos repasados por completo
+  progress.practice = progress.practice || {}; // sets de ejercicios completados
   function starsStr(n) { return "★".repeat(n) + "☆".repeat(3 - n); }
+
+  /* ---------------- PUNTOS / XP (derivado del progreso) ----------------
+     El XP es una función pura del progreso: total = suma de los mejores
+     esfuerzos por actividad. Listo para una futura tabla de posiciones (Tops). */
+  const CAPAS_TOTAL = 16; // protocolos del juego "Protocolos por capa"
+  function pointsBreakdown() {
+    const cat = {
+      teoria:     UNITS.reduce((s, u) => s + (progress.read[u.id] ? 15 : 0), 0),
+      quiz:       UNITS.reduce((s, u) => { const q = progress.quiz[u.id]; return s + (q ? q.best * 8 : 0); }, 0),
+      labs:       Object.values(progress.labSim).reduce((s, st) => s + (st || 0) * 25, 0),
+      simulador:  Object.values(progress.build).filter(Boolean).length * 60,
+      juego:      (progress.game.capas || 0) * 5,
+      flashcards: Object.values(progress.cards).filter(Boolean).length * 10,
+      practica:   Object.values(progress.practice).filter(Boolean).length * 15,
+    };
+    cat.total = Object.values(cat).reduce((a, b) => a + b, 0);
+    return cat;
+  }
+  function maxPoints() {
+    const quizMax = UNITS.reduce((s, u) => s + u.quiz.length * 8, 0);
+    return {
+      teoria: UNITS.length * 15, quiz: quizMax,
+      labs: (Object.keys(window.LAB_SIM || {}).length) * 3 * 25,
+      simulador: 2 * 60, juego: CAPAS_TOTAL * 5,
+      flashcards: DECKS.length * 10, practica: PRACTICE.length * 15,
+    };
+  }
+  function awardGame(id, score) {
+    if ((progress.game[id] || 0) < score) { progress.game[id] = score; saveProgress(progress); }
+  }
 
   function unitPct(uid) {
     let done = 0;
@@ -82,6 +116,8 @@
     const g = globalPct();
     $("#globalProgressBar").style.width = g + "%";
     $("#globalProgressPct").textContent = g + "%";
+    const xp = $("#xpBadge");
+    if (xp) xp.innerHTML = `${icon("trophy")} ${pointsBreakdown().total} <small>XP</small>`;
     document.querySelectorAll(".nav__item[data-unit]").forEach(el => {
       el.classList.toggle("completed", unitPct(el.dataset.unit) >= 100);
     });
@@ -250,7 +286,9 @@
     const meta = TOOLS.find(t => t[0] === id);
     if (!meta || !window.Tools[id]) return renderHome();
     const c = mount(`<h1 class="page-title">${icon(TOOL_ICON[id], "ic--title")} ${meta[1]}</h1><p class="page-sub">${meta[2]}</p><div id="toolMount"></div>`);
-    window.Tools[id](c.querySelector("#toolMount"));
+    window.Tools[id](c.querySelector("#toolMount"), {
+      onScore: (score) => { awardGame(id, score); refreshProgressUI(); }
+    });
   }
 
   /* ---------------- LABORATORIOS (Packet Tracer) ---------------- */
@@ -343,7 +381,7 @@
     const c = mount(`<div id="simRoot"></div>`);
     window.LabSim.start(c.querySelector("#simRoot"), id, {
       icon,
-      onFinish: (stars) => { if (stars > (progress.labSim[id] || 0)) { progress.labSim[id] = stars; saveProgress(progress); } }
+      onFinish: (stars) => { if (stars > (progress.labSim[id] || 0)) { progress.labSim[id] = stars; saveProgress(progress); } refreshProgressUI(); }
     });
   }
 
@@ -376,7 +414,7 @@
     const c = mount(`<div id="netRoot"></div>`);
     window.NetSim.start(c.querySelector("#netRoot"), id, {
       icon,
-      onFinish: () => { if (!progress.build[id]) { progress.build[id] = true; saveProgress(progress); } }
+      onFinish: () => { if (!progress.build[id]) { progress.build[id] = true; saveProgress(progress); } refreshProgressUI(); }
     });
   }
 
@@ -416,15 +454,19 @@
       <div class="pager"><span></span><a class="next" href="#/practica"><small>Otros →</small>Volver a la lista</a></div>`);
 
     let allShown = false;
+    const opened = new Set();
+    function markPracticeDone() { if (!progress.practice[id]) { progress.practice[id] = true; saveProgress(progress); refreshProgressUI(); } }
     c.querySelectorAll(".exercise__toggle").forEach(b => b.addEventListener("click", () => {
       const sol = c.querySelector(`#sol-${b.dataset.i}`), open = sol.hidden;
       sol.hidden = !open; b.textContent = open ? "Ocultar solución" : "Ver solución"; b.classList.toggle("is-open", open);
+      if (open) { opened.add(b.dataset.i); if (opened.size >= tp.exercises.length) markPracticeDone(); }
     }));
     $("#toggleAll").addEventListener("click", () => {
       allShown = !allShown;
       c.querySelectorAll(".exercise__sol").forEach(s => s.hidden = !allShown);
       c.querySelectorAll(".exercise__toggle").forEach(b => { b.textContent = allShown ? "Ocultar solución" : "Ver solución"; b.classList.toggle("is-open", allShown); });
       $("#toggleAll").textContent = allShown ? "Ocultar todas las soluciones" : "Mostrar todas las soluciones";
+      if (allShown) markPracticeDone();
     });
   }
 
@@ -509,6 +551,7 @@
           <div class="quiz-score-ring">${score}/${total}</div>
           <div class="progress-bar" style="max-width:320px;margin:16px auto"><span style="width:${pct}%"></span></div>
           <p class="lead">${pct}% · ${msg}</p>
+          <p class="muted" style="margin-top:-6px">${icon("trophy")} Llevás <strong>${pointsBreakdown().total} XP</strong> en total</p>
           <div class="btn-row" style="justify-content:center">
             <button class="btn btn--primary" id="retry">${icon("refresh")} Reintentar</button>
             <a class="btn" href="#/quiz">Otras unidades</a>
@@ -544,8 +587,13 @@
   function renderCards(id) {
     const d = deckById(id);
     if (!d) return renderCardsMenu();
-    let i = 0;
+    let i = 0; const seen = new Set();
+    function markSeen() {
+      seen.add(i);
+      if (seen.size >= d.cards.length && !progress.cards[id]) { progress.cards[id] = true; saveProgress(progress); refreshProgressUI(); }
+    }
     function paint() {
+      markSeen();
       const card = d.cards[i];
       const c = mount(`
         <div class="chip">${badge(d.short ? d.short.charAt(0) : "★")} ${d.short || d.title}</div>
@@ -592,12 +640,28 @@
         </div></div>`;
     }).join("");
 
+    const pts = pointsBreakdown(), mx = maxPoints();
+    const CATS = [["teoria", "Teoría leída"], ["quiz", "Autoevaluación"], ["labs", "Labs jugados"], ["simulador", "Simulador"], ["juego", "Protocolos por capa"], ["flashcards", "Flashcards"], ["practica", "Práctica"]];
+    const xpRows = CATS.map(([k, l]) => {
+      const v = pts[k] || 0, m = mx[k] || 0, pct = m ? Math.round(v / m * 100) : 0;
+      return `<div class="xp-row"><span class="xp-lbl">${l}</span><div class="progress-bar"><span style="width:${pct}%"></span></div><span class="xp-val">${v}</span></div>`;
+    }).join("");
+
     mount(`
       <h1 class="page-title">${icon("progress", "ic--title")} Mi progreso</h1>
-      <p class="page-sub">Tu avance se guarda en este dispositivo (localStorage).</p>
+      <p class="page-sub">Ganás <strong>XP</strong> con todo lo que hacés. Tu avance se guarda en este dispositivo (localStorage).</p>
+
+      <div class="card center" style="margin-bottom:18px">
+        <div class="xp-total">${pts.total} <span style="font-size:20px">XP</span></div>
+        <p class="muted">Puntos acumulados</p>
+        <div style="text-align:left;max-width:440px;margin:14px auto 0">${xpRows}</div>
+        <div class="xp-soon">${icon("trophy")} <strong>Tabla de posiciones (Tops):</strong> próximamente vas a poder competir con tu puntaje.</div>
+      </div>
+
       <div class="stat-row">
         <div class="stat"><div class="stat__num">${globalPct()}%</div><div class="stat__label">Teoría + quiz</div></div>
         <div class="stat"><div class="stat__num">${labsDone()}/${labsTotal()}</div><div class="stat__label">Labs hechos</div></div>
+        <div class="stat"><div class="stat__num">${Object.values(progress.build).filter(Boolean).length}/2</div><div class="stat__label">Misiones</div></div>
       </div>
       ${rows}
       <div class="btn-row">
@@ -605,7 +669,7 @@
       </div>`);
     $("#resetProg").addEventListener("click", () => {
       if (confirm("¿Seguro que querés borrar todo tu progreso?")) {
-        progress = { read: {}, quiz: {}, labs: {}, labSim: {}, build: {} }; saveProgress(progress); router();
+        progress = { read: {}, quiz: {}, labs: {}, labSim: {}, build: {}, game: {}, cards: {}, practice: {} }; saveProgress(progress); router();
       }
     });
   }

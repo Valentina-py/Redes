@@ -199,7 +199,7 @@
     "Ethernet": "LAN cableada.", "Token Ring": "LAN clásica.", "Frame Relay": "WAN.", "ATM": "WAN."
   };
 
-  window.Tools.capas = function (mount) {
+  window.Tools.capas = function (mount, opts) {
     let order = LAYERS.map((_, i) => i);
     for (let i = order.length - 1; i > 0; i--) { const j = (i * 7 + 3) % (i + 1); [order[i], order[j]] = [order[j], order[i]]; }
     let pos = 0, score = 0, answered = false;
@@ -237,7 +237,7 @@
       el.querySelector("#gScore").textContent = `Protocolo ${pos + 1} de ${LAYERS.length} · Aciertos: ${score}`;
       const nav = el.querySelector("#gNav");
       if (pos < LAYERS.length - 1) nav.innerHTML = `<button class="btn btn--primary" id="gNext">Siguiente →</button>`;
-      else nav.innerHTML = `<div class="center"><p><strong>Terminaste: ${score}/${LAYERS.length}</strong></p><button class="btn btn--primary" id="gNext">Volver a empezar</button></div>`;
+      else { nav.innerHTML = `<div class="center"><p><strong>Terminaste: ${score}/${LAYERS.length}</strong></p><button class="btn btn--primary" id="gNext">Volver a empezar</button></div>`; if (opts && opts.onScore) opts.onScore(score); }
       nav.querySelector("#gNext").addEventListener("click", () => {
         if (pos < LAYERS.length - 1) pos++; else { pos = 0; score = 0; }
         paint();

@@ -710,6 +710,26 @@ ol.lab-steps > li::before {
   background: var(--ok-soft); border: 1px solid var(--ok);
 }
 
+/* ===================== PUNTOS / XP ===================== */
+.xp-badge {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 12px; padding: 9px 12px; border-radius: 11px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff;
+  font-weight: 800; font-size: 15px;
+}
+.xp-badge .ic { width: 18px; height: 18px; }
+.xp-badge small { font-weight: 600; opacity: .85; font-size: 11px; }
+
+.xp-total { font-size: 40px; font-weight: 800; color: var(--accent); line-height: 1; }
+.xp-row { display: flex; align-items: center; gap: 12px; margin: 10px 0; font-size: 13.5px; }
+.xp-row .xp-lbl { width: 112px; color: var(--muted); flex-shrink: 0; }
+.xp-row .progress-bar { flex: 1; }
+.xp-row .xp-val { width: 58px; text-align: right; font-weight: 700; color: var(--accent); }
+.xp-soon {
+  margin-top: 16px; padding: 14px 16px; border-radius: 12px; text-align: center;
+  background: var(--accent-soft); border: 1px dashed var(--accent); font-size: 13.5px;
+}
+
 /* Animaciones suaves al entrar */
 .fade-in { animation: fade .35s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
