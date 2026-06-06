@@ -626,6 +626,90 @@ ol.lab-steps > li::before {
 
 @media (max-width: 540px) { .play-cta__go { display: none; } }
 
+/* ===================== SIMULADOR DE TOPOLOGÍA ===================== */
+.net-palette { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.net-palette button {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 14px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); font-size: 13.5px; font-weight: 600;
+}
+.net-palette button:hover { border-color: var(--accent); background: var(--surface-2); }
+.net-palette .ic { width: 18px; height: 18px; color: var(--accent); }
+
+.net-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
+.net-bar .net-mode {
+  display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 13.5px; font-weight: 600;
+}
+.net-bar .net-mode.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.net-bar .net-tip { font-size: 12.5px; color: var(--muted); }
+
+.netcanvas {
+  position: relative; width: 100%; height: 380px;
+  background:
+    linear-gradient(var(--border) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, var(--border) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--surface);
+  background-blend-mode: normal;
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; touch-action: none;
+}
+[data-theme="dark"] .netcanvas { background:
+    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--surface); }
+.netcanvas svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.netcanvas svg line { stroke: var(--accent); stroke-width: 3; }
+.netcanvas svg line.bad { stroke: var(--bad); stroke-dasharray: 6 5; }
+.net-linklabel { font-size: 10px; fill: var(--muted); }
+
+.netnode {
+  position: absolute; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: grab; user-select: none; width: 76px; text-align: center;
+}
+.netnode:active { cursor: grabbing; }
+.netnode__box {
+  width: 50px; height: 50px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--surface); border: 2px solid var(--accent); color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.netnode.sel .netnode__box { outline: 3px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+.netnode.host-bad .netnode__box { border-color: var(--warn); color: var(--warn); }
+.netnode__box .ic { width: 26px; height: 26px; }
+.netnode__name { font-size: 11px; font-weight: 700; }
+.netnode__ip { font-size: 9.5px; color: var(--muted); font-family: ui-monospace, monospace; line-height: 1.1; }
+
+.net-pop {
+  position: absolute; z-index: 5; width: 220px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: var(--shadow); padding: 12px;
+}
+.net-pop h4 { margin: 0 0 8px; font-size: 13.5px; }
+.net-pop .input { font-size: 13px; padding: 8px 10px; margin-bottom: 8px; }
+.net-pop .net-pop__row { display: flex; gap: 8px; }
+.net-pop .btn { padding: 7px 12px; font-size: 12.5px; }
+
+.cable-ask {
+  position: absolute; inset: 0; background: rgba(0,0,0,.35); display: grid; place-items: center; z-index: 8;
+}
+.cable-ask__box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; text-align: center; max-width: 280px; box-shadow: var(--shadow); }
+.cable-ask__box p { margin: 0 0 12px; font-size: 14px; }
+
+.net-ping { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
+.net-ping select.input { width: auto; min-width: 120px; padding: 8px 10px; font-size: 13px; }
+.net-ping__out { margin-top: 10px; }
+
+.net-check { list-style: none; padding: 0; margin: 14px 0 0; }
+.net-check li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
+.net-check li:last-child { border-bottom: none; }
+.net-check .mk { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; flex-shrink: 0; font-size: 13px; font-weight: 700; }
+.net-check li.ok .mk { background: var(--ok-soft); color: var(--ok); }
+.net-check li.no .mk { background: var(--surface-2); color: var(--muted); }
+.net-mission-done {
+  margin-top: 16px; padding: 16px; border-radius: 12px; text-align: center;
+  background: var(--ok-soft); border: 1px solid var(--ok);
+}
+
 /* Animaciones suaves al entrar */
 .fade-in { animation: fade .35s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }

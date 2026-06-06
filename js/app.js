@@ -23,6 +23,7 @@
     binary: '<rect x="4" y="3.5" width="6" height="7" rx="1"/><rect x="14" y="13.5" width="6" height="7" rx="1"/><path d="M7 13.5v7M17 3.5v7"/>',
     lab: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M6.5 8.5l2.2 2.2-2.2 2.2M12 13h4"/>',
     play: '<path d="M7 5v14l11-7z"/>',
+    build: '<rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><path d="M11 7h4a2 2 0 0 1 2 2v4"/>',
     cards: '<rect x="3" y="7" width="14" height="13" rx="2"/><path d="M7 4h14v13"/>',
     quiz: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 11 2.5 2.5L15 9"/>',
     practice: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
@@ -40,12 +41,11 @@
     return `<svg class="ic ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor"
       stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ""}</svg>`;
   }
-  const TOOL_ICON = { subredes: "net", retardos: "clock", capas: "layers", binario: "binary" };
+  const TOOL_ICON = { subredes: "net", retardos: "clock", capas: "layers" };
   const TOOLS = [
     ["subredes", "Calculadora de subredes", "Calculá red, broadcast, rango de hosts y cantidad a partir de una IP y su máscara."],
     ["retardos", "Retardos y throughput", "Retardo de transmisión, propagación, total y cuello de botella."],
     ["capas", "Protocolos por capa", "Juego: ubicá cada protocolo en su capa del modelo TCP/IP."],
-    ["binario", "Binario ↔ decimal", "Convertí números e IPs a binario, octeto por octeto."],
   ];
   function badge(glyph, big) { return `<span class="ubadge${big ? " ubadge--lg" : ""}">${glyph}</span>`; }
 
@@ -61,6 +61,7 @@
   progress.quiz = progress.quiz || {};
   progress.labs = progress.labs || {};
   progress.labSim = progress.labSim || {};
+  progress.build = progress.build || {};
   function starsStr(n) { return "★".repeat(n) + "☆".repeat(3 - n); }
 
   function unitPct(uid) {
@@ -99,6 +100,7 @@
     html += `<div class="nav__group-title">Packet Tracer</div>`;
     LABS.forEach(l => html += navItem(`#/labs/${l.id}`, icon("lab"), l.title.replace(/^Laboratorio /, "Lab "), null));
     html += navItem("#/play", icon("play"), "Modo interactivo", null);
+    html += navItem("#/build", icon("build"), "Simulador de red", null);
     html += `<div class="nav__group-title">Práctica</div>`;
     html += navItem("#/practica", icon("practice"), "Ejercicios", null);
     html += navItem("#/cards", icon("cards"), "Flashcards", null);
@@ -129,6 +131,8 @@
     else if (root === "labs") { crumb = "Packet Tracer"; renderLabsMenu(); }
     else if (root === "play" && id) { crumb = "Modo interactivo"; renderPlay(id); }
     else if (root === "play") { crumb = "Modo interactivo"; renderPlayMenu(); }
+    else if (root === "build" && id) { crumb = "Simulador de red"; renderBuild(id); }
+    else if (root === "build") { crumb = "Simulador de red"; renderBuildMenu(); }
     else if (root === "quiz" && id) { crumb = "Autoevaluación"; renderQuiz(id); }
     else if (root === "quiz") { crumb = "Autoevaluación"; renderQuizMenu(); }
     else if (root === "cards" && id) { crumb = "Flashcards"; renderCards(id); }
@@ -141,6 +145,7 @@
     $("#breadcrumbs").textContent = crumb;
     setActiveNav("#/" + (root + (id && ["unit", "tool", "labs"].includes(root) ? "/" + id : "")).replace(/\/$/, ""));
     if (root === "play") setActiveNav("#/play");
+    if (root === "build") setActiveNav("#/build");
     if (root === "") setActiveNav("#/");
     refreshProgressUI();
     closeSidebar();
@@ -190,6 +195,16 @@
           <div class="unit-card__title">${l.title}</div>
           <div class="unit-card__desc">${l.desc}</div></a>`).join("")}
       </div>
+      <a class="play-cta" href="#/play">
+        <span class="play-cta__ic">${icon("play")}</span>
+        <span class="play-cta__t"><strong>Modo interactivo · jugá los labs</strong><div>Decisiones, configurar IPs y terminal simulada, con estrellas.</div></span>
+        <span class="play-cta__go">Jugar →</span>
+      </a>
+      <a class="play-cta" href="#/build">
+        <span class="play-cta__ic">${icon("build")}</span>
+        <span class="play-cta__t"><strong>Simulador de red · armá la topología</strong><div>Agregá equipos, conectalos con el cable correcto, poné IPs y hacé ping.</div></span>
+        <span class="play-cta__go">Armar →</span>
+      </a>
 
       <h2>Para practicar</h2>
       <div class="btn-row">
@@ -329,6 +344,39 @@
     window.LabSim.start(c.querySelector("#simRoot"), id, {
       icon,
       onFinish: (stars) => { if (stars > (progress.labSim[id] || 0)) { progress.labSim[id] = stars; saveProgress(progress); } }
+    });
+  }
+
+  /* ---------------- SIMULADOR DE RED (armar topología) ---------------- */
+  function renderBuildMenu() {
+    const MIS = window.NET_MISSIONS || {};
+    const order = ["m1", "m2", "sandbox"];
+    const items = order.filter(k => MIS[k]).map(k => {
+      const done = progress.build[k];
+      return `<a class="unit-card" href="#/build/${k}">
+        <div class="unit-card__head">${badge(k === "sandbox" ? "∞" : k.replace("m", ""), true)}
+          <span class="unit-card__num">${MIS[k].need.free ? "libre" : "misión"}</span></div>
+        <div class="unit-card__title">${MIS[k].title}</div>
+        <div class="unit-card__desc">${MIS[k].brief.replace(/<[^>]+>/g, "")}</div>
+        ${done ? `<div class="muted" style="margin-top:10px;color:var(--ok);font-size:13px">✓ Cumplida</div>` : ""}
+      </a>`;
+    }).join("");
+    mount(`
+      <h1 class="page-title">${icon("build", "ic--title")} Simulador de red</h1>
+      <p class="page-sub">Armá la topología vos: agregá dispositivos, conectalos con el <strong>cable correcto</strong>, configurá las IPs y probá <strong>ping</strong>. Lo más parecido a Packet Tracer dentro de la web.</p>
+      <div class="unit-grid">${items}</div>
+      <div class="callout tip">
+        <strong class="callout__tag">Cómo se usa</strong>
+        Tocá un dispositivo de la paleta para agregarlo · modo <strong>Conectar</strong> para unir dos equipos (te pregunta el cable) · tocá un equipo para ponerle IP · usá <strong>Enviar ping</strong> para probar. Los objetivos se tildan solos.
+      </div>`);
+  }
+
+  function renderBuild(id) {
+    if (!window.NetSim || !window.NET_MISSIONS || !window.NET_MISSIONS[id]) return renderBuildMenu();
+    const c = mount(`<div id="netRoot"></div>`);
+    window.NetSim.start(c.querySelector("#netRoot"), id, {
+      icon,
+      onFinish: () => { if (!progress.build[id]) { progress.build[id] = true; saveProgress(progress); } }
     });
   }
 
@@ -557,7 +605,7 @@
       </div>`);
     $("#resetProg").addEventListener("click", () => {
       if (confirm("¿Seguro que querés borrar todo tu progreso?")) {
-        progress = { read: {}, quiz: {}, labs: {}, labSim: {} }; saveProgress(progress); router();
+        progress = { read: {}, quiz: {}, labs: {}, labSim: {}, build: {} }; saveProgress(progress); router();
       }
     });
   }
