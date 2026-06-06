@@ -205,7 +205,7 @@
 
     mount(`
       <h1 class="page-title">Plataforma de estudio de Redes</h1>
-      <p class="page-sub">Redes Informáticas y Comunicación · IES N.º 6023 · Teoría, herramientas, laboratorios de Packet Tracer y autoevaluación.</p>
+      <p class="page-sub">Redes Informáticas y Comunicación · Teoría, herramientas, laboratorios de Packet Tracer y autoevaluación.</p>
 
       <div class="stat-row">
         <div class="stat"><div class="stat__num">${UNITS.length}</div><div class="stat__label">Unidades</div></div>
