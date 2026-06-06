@@ -1,13 +1,14 @@
-/* Service Worker — Tarjetas de Redes
+/* Service Worker — Estudio Redes (PWA offline)
    Estrategia:
-   - HTML y data.js: "network-first" (siempre intenta traer lo último; si no hay
-     internet, usa la copia guardada). Así nunca ves tarjetas viejas estando online.
-   - Íconos/manifest: "cache-first" (carga instantánea).
-   Al cambiar el contenido, subí el número de versión (CACHE) para forzar refresco. */
-const CACHE = "redes-v3";
+   - HTML / CSS / JS: "network-first" (siempre intenta lo último; offline → copia guardada).
+   - Íconos / manifest: "cache-first" (carga instantánea).
+   Al cambiar el contenido, subí el número de versión (CACHE) para forzar el refresco. */
+const CACHE = "redes-v5";
 const ASSETS = [
-  "./", "./index.html", "./study.html", "./data.js",
-  "./practica.html", "./practice-data.js",
+  "./", "./index.html",
+  "./css/styles.css",
+  "./js/data.js", "./js/decks.js", "./js/practice.js", "./js/labs.js", "./js/lab-sim.js", "./js/tools.js", "./js/app.js",
+  "./Tarjetas-TP1-Introduccion-Redes.html", "./Tarjetas-TP2-Capa-Aplicacion.html", "./Tarjetas-Repaso-Teoria.html",
   "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-180.png"
 ];
 
@@ -27,28 +28,22 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  const isFresh = req.mode === "navigate" || url.pathname.endsWith(".html") || url.pathname.endsWith(".js");
+  const isFresh = req.mode === "navigate" || url.pathname.endsWith(".html") ||
+    url.pathname.endsWith(".js") || url.pathname.endsWith(".css");
 
   if (isFresh) {
-    // network-first; offline → cache (ignorando el ?deck=... para que matchee study.html)
+    // network-first; offline → cache (y como fallback de navegación, el index)
     e.respondWith(
       fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-          return res;
-        })
+        .then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res; })
         .catch(() => caches.match(req, { ignoreSearch: true })
-          .then((m) => m || caches.match(req.mode === "navigate" ? "./study.html" : req))
           .then((m) => m || caches.match("./index.html")))
     );
   } else {
     // cache-first
     e.respondWith(
       caches.match(req, { ignoreSearch: true }).then((m) => m || fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(req, copy));
-        return res;
+        const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res;
       }))
     );
   }

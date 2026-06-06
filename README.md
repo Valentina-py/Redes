@@ -1,52 +1,43 @@
-# Tarjetas de estudio — Redes Informáticas y Comunicación
+# Estudio Redes · Plataforma interactiva
 
-Web interactiva de flashcards (IES N.º 6023 Loutaif · Caps. 1 y 2).
+Web de estudio de **Redes Informáticas y Comunicación** (IES N.º 6023 "Dr. Alfredo Loutaif" · 2do año). SPA estática, sin build, lista para Vercel. Misma arquitectura que *Estudio Matemática*.
 
-## Mazos
-- **TP 1** — Introducción a las Redes (23 tarjetas)
-- **TP 2** — Capa de Aplicación (21 tarjetas)
-- **Repaso** — Teoría general (32 tarjetas)
+## Qué incluye
+- **4 unidades de teoría**: Introducción a las Redes · Capa de Aplicación · Modelo de Capas y Encapsulamiento · Seguridad en Redes.
+- **4 herramientas interactivas**: calculadora de subredes (IP/CIDR), retardos y throughput, protocolos por capa (juego) y conversor binario ↔ decimal.
+- **Laboratorios de Cisco Packet Tracer**: Lab 1 (red hogareña) y Lab 2 (HTTP, FTP, SMTP/POP3, DNS, TFTP), paso a paso y con marca de "hecha".
+- **Flashcards**: mazos TP 1, TP 2 y Repaso (76 tarjetas).
+- **Autoevaluación**: quiz por unidad + quiz general.
+- **Buscador**, progreso en `localStorage`, modo claro/oscuro y **PWA** (instalable y offline).
 
-## Cómo se usa
-- Tocá la tarjeta (o **Espacio**) para girarla y ver la respuesta.
-- **✓ Lo sé** (tecla `2`) / **↺ Repasar** (tecla `1`).
-- **🔀 Mezclar** para autoevaluarte en orden aleatorio.
-- **★ Pendientes** para estudiar solo las que faltan.
-- Flechas ← → o deslizar en el celular para cambiar de tarjeta.
-- El progreso se guarda en el navegador (localStorage).
-
-## Instalar como app (PWA) y usar sin internet
-La web es una **PWA**: se puede instalar en el celu/compu y funciona **offline**.
-- **Android (Chrome):** entrá al sitio → menú ⋮ → *Instalar app* / *Agregar a pantalla de inicio*.
-- **iPhone (Safari):** botón Compartir → *Agregar a inicio*.
-- **PC (Chrome/Edge):** ícono de instalar ⊕ en la barra de direcciones.
-
-Una vez instalada, abre a pantalla completa y guarda las tarjetas para estudiar sin conexión.
-> Al cambiar el contenido (`data.js`), subí el número de versión `CACHE` en `sw.js` (ej. `redes-v2`) para que se refresque en los dispositivos.
-
-## Probar en tu compu
-Abrí `index.html` directamente en el navegador. ¡Listo!
-> Nota: la instalación/offline solo funciona servido por **https** (Vercel), no abriendo el archivo local.
-
-## Subir a Vercel
-Es un sitio estático, no necesita build.
-
-**Opción rápida (sin instalar nada):**
-1. Entrá a [vercel.com](https://vercel.com) e iniciá sesión.
-2. "Add New… → Project" y arrastrá esta carpeta, o conectala desde GitHub.
-3. Framework Preset: **Other**. Build command: vacío. Output dir: `./`
-4. Deploy.
-
-**Opción CLI:**
-```bash
-npm i -g vercel
-vercel        # primera vez: seguí los pasos
-vercel --prod # publicar
+## Estructura
+```
+index.html              shell de la SPA (sidebar + router)
+css/styles.css          estilos (acento teal)
+js/data.js              unidades de teoría + quiz por unidad
+js/decks.js             mazos de flashcards (TP1, TP2, Repaso)
+js/practice.js          ejercicios con solución revelable
+js/labs.js              laboratorios de Packet Tracer
+js/tools.js             las 4 herramientas interactivas
+js/app.js               router, navegación, progreso, búsqueda, tema
+manifest.webmanifest · sw.js · icon-*.png   → PWA
+Tarjetas-*.html         versiones imprimibles (independientes)
 ```
 
-## Archivos
-- `index.html` — página de inicio (selector de mazos)
-- `study.html` — modo estudio interactivo (`?deck=tp1|tp2|repaso`)
-- `data.js` — contenido de todas las tarjetas (editá acá para cambiar preguntas/respuestas)
-- `vercel.json` — config de despliegue
-- Los `Tarjetas-*.html` originales quedan como versión imprimible.
+## Probar en tu compu
+Abrí `index.html` en el navegador, o levantá un servidor local:
+```bash
+python -m http.server 5173
+```
+> La instalación PWA / offline solo funciona servido por **https** (Vercel), no abriendo el archivo local.
+
+## Editar el contenido
+- Teoría y quiz → `js/data.js`
+- Flashcards → `js/decks.js`
+- Ejercicios → `js/practice.js`
+- Laboratorios → `js/labs.js`
+
+> Al cambiar contenido, subí la versión `CACHE` en `sw.js` (`redes-v4` → `redes-v5`) para refrescar los dispositivos ya instalados.
+
+## Subir a Vercel
+Es estático, sin build. Conectá el repo o arrastrá la carpeta en [vercel.com](https://vercel.com) → **Add New → Project → Deploy** (Framework: *Other*). El `vercel.json` ya está listo.

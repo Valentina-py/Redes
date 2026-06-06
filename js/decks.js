@@ -609,4 +609,8 @@ t = 40.000.000 / 2.000.000 = 20 s</div>
 
 };
 
+/* Exponer al sistema de la SPA (sección Flashcards) y conservar compatibilidad. */
+window.APP_DATA = window.APP_DATA || {};
+window.APP_DATA.decks = DECKS;
+
 if (typeof module !== "undefined") { module.exports = DECKS; }

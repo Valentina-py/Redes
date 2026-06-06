@@ -1,13 +1,13 @@
 {
-  "name": "Tarjetas de Redes",
+  "name": "Estudio Redes",
   "short_name": "Redes",
-  "description": "Tarjetas de estudio interactivas de Redes Informáticas y Comunicación.",
+  "description": "Plataforma de estudio de Redes Informáticas y Comunicación: teoría, herramientas, laboratorios de Packet Tracer, flashcards y autoevaluación.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f1729",
-  "theme_color": "#0f1729",
+  "background_color": "#0c1116",
+  "theme_color": "#0d9488",
   "lang": "es",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
