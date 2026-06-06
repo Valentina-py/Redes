@@ -1,6 +1,6 @@
 /* ============================================================
    CONTENIDO DE ESTUDIO — Redes Informáticas y Comunicación
-   IES N.º 6023 "Dr. Alfredo Loutaif" · Orán · 2do año
+   Redes Informáticas y Comunicación · 2do año
    Basado en Kurose & Ross (Caps. 1 y 2) y en los TP de la cátedra.
    Cada unidad: { id, glyph, icon, title, desc, tool?, html, quiz, cards }
    ============================================================ */

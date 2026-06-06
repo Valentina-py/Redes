@@ -1,6 +1,6 @@
 /* ============================================================
    LABORATORIOS — Cisco Packet Tracer
-   IES N.º 6023 · Redes Informáticas y Comunicación · 2026
+   Redes Informáticas y Comunicación · 2026
    Cada lab: { id, glyph, title, desc, intro, activities: [
      { name, objetivos:[], topologia, pasos:[], notas? } ] }
    ============================================================ */
@@ -149,12 +149,12 @@ window.APP_DATA.labs = [
     {
       name: "Actividad 6 · SMTP — Vista del usuario",
       objetivos: ["Configurar dos servidores de e-mail (SMTP) y dos clientes SMTP/POP3 para enviar y recibir correos."],
-      topologia: `Dos Servidores y dos PCs vinculados por un switch. Red <span class="cmd">1.0.0.0/8</span>. Dominios <span class="cmd">loutaif.com</span> (1.1.1.1) y <span class="cmd">example.com</span> (1.1.1.2).`,
+      topologia: `Dos Servidores y dos PCs vinculados por un switch. Red <span class="cmd">1.0.0.0/8</span>. Dominios <span class="cmd">correo.com</span> (1.1.1.1) y <span class="cmd">example.com</span> (1.1.1.2).`,
       pasos: [
-        `En el Server (loutaif.com): Solapa EMAIL → dominio loutaif.com, usuario <span class="cmd">alicia</span> / clave alicia.`,
-        `En ese servidor, Solapa DNS → dos registros tipo A: loutaif.com → 1.1.1.1 y example.com → 1.1.1.2.`,
+        `En el Server (correo.com): Solapa EMAIL → dominio correo.com, usuario <span class="cmd">alicia</span> / clave alicia.`,
+        `En ese servidor, Solapa DNS → dos registros tipo A: correo.com → 1.1.1.1 y example.com → 1.1.1.2.`,
         `En el Server (example.com): Solapa EMAIL → dominio example.com, usuario <span class="cmd">benito</span> / clave benito.`,
-        `En la PC de alicia configurar el cliente de correo: alicia@loutaif.com, servidor entrante y saliente loutaif.com, usuario/clave alicia.`,
+        `En la PC de alicia configurar el cliente de correo: alicia@correo.com, servidor entrante y saliente correo.com, usuario/clave alicia.`,
         `En la PC de benito: benito@example.com, servidores example.com, usuario/clave benito.`,
         `Desde una PC redactar y enviar un e-mail al usuario de la otra PC y viceversa; verificar la recepción.`
       ],
@@ -163,11 +163,11 @@ window.APP_DATA.labs = [
     {
       name: "Actividad 7 · SMTP — Análisis del protocolo",
       objetivos: ["Comprender SMTP y POP3 con dos servidores de distinto dominio."],
-      topologia: `Igual a la Actividad 6 (dos servidores loutaif.com / example.com, dos PCs, switch, red 1.0.0.0/8).`,
+      topologia: `Igual a la Actividad 6 (dos servidores correo.com / example.com, dos PCs, switch, red 1.0.0.0/8).`,
       pasos: [
         `Pasar a <strong>Modo Simulación</strong> y filtrar solo <strong>TCP, SMTP y POP3</strong>.`,
         `Desde la PC de alicia, redactar y enviar un e-mail a benito@example.com.`,
-        `Verificar: conexión TCP PC→servidor loutaif.com, entrega con <strong>SMTP</strong>, conexión TCP entre servidor loutaif.com y example.com, y entrega de correos pendientes.`,
+        `Verificar: conexión TCP PC→servidor correo.com, entrega con <strong>SMTP</strong>, conexión TCP entre servidor correo.com y example.com, y entrega de correos pendientes.`,
         `Abrir el cliente de benito y ejecutar "recibir": verificar la conexión TCP y la recepción con <strong>POP3</strong>.`,
         `Repetir con dos correos para verificar la conexión persistente de SMTP.`
       ]

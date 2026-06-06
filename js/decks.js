@@ -1,6 +1,6 @@
 /* ===========================================================
    Datos de las tarjetas de estudio
-   Redes Informáticas y Comunicación · IES N.º 6023 Loutaif
+   Redes Informáticas y Comunicación
    =========================================================== */
 
 const DECKS = {

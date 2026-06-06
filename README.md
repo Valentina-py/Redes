@@ -1,10 +1,11 @@
 # Estudio Redes · Plataforma interactiva
 
-Web de estudio de **Redes Informáticas y Comunicación** (IES N.º 6023 "Dr. Alfredo Loutaif" · 2do año). SPA estática, sin build, lista para Vercel. Misma arquitectura que *Estudio Matemática*.
+Web de estudio de **Redes Informáticas y Comunicación** (2do año). SPA estática, sin build, lista para Vercel. Misma arquitectura que *Estudio Matemática*.
 
 ## Qué incluye
 - **4 unidades de teoría**: Introducción a las Redes · Capa de Aplicación · Modelo de Capas y Encapsulamiento · Seguridad en Redes.
-- **4 herramientas interactivas**: calculadora de subredes (IP/CIDR), retardos y throughput, protocolos por capa (juego) y conversor binario ↔ decimal.
+- **3 herramientas interactivas**: calculadora de subredes (IP/CIDR), retardos y throughput, y protocolos por capa (juego).
+- **Simulador de red** y **Modo interactivo** de los labs, con **sistema de puntos (XP)**.
 - **Laboratorios de Cisco Packet Tracer**: Lab 1 (red hogareña) y Lab 2 (HTTP, FTP, SMTP/POP3, DNS, TFTP), paso a paso y con marca de "hecha".
 - **Flashcards**: mazos TP 1, TP 2 y Repaso (76 tarjetas).
 - **Autoevaluación**: quiz por unidad + quiz general.
