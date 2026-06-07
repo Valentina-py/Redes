@@ -37,6 +37,9 @@
     check: '<path d="m5 12 4.5 4.5L19 7"/>',
     cross: '<path d="M6 6l12 12M18 6 6 18"/>',
     chev: '<path d="m9 6 6 6-6 6"/>',
+    target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',
+    list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>',
   };
   function icon(name, cls) {
     return `<svg class="ic ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -297,34 +300,49 @@
       <h1 class="page-title">${icon("lab", "ic--title")} Laboratorios · Cisco Packet Tracer</h1>
       <p class="page-sub">Guías paso a paso de cada práctica. Marcá las actividades a medida que las completás.</p>
       <div class="unit-grid">
-        ${LABS.map(l => `<a class="unit-card" href="#/labs/${l.id}">
-          <div class="unit-card__head">${badge(l.glyph, true)}<span class="unit-card__num">${l.activities.length} actividades</span></div>
-          <div class="unit-card__title">${l.title}</div>
-          <div class="unit-card__desc">${l.desc}</div></a>`).join("")}
+        ${LABS.map(l => {
+          const total = l.activities.length;
+          const done = l.activities.filter((_, i) => progress.labs[`${l.id}.${i}`]).length;
+          const pct = Math.round(done / total * 100);
+          const stars = progress.labSim[l.id] || 0;
+          return `<a class="unit-card" href="#/labs/${l.id}">
+            <div class="unit-card__head">${badge(l.glyph, true)}<span class="unit-card__num">${total} actividades</span></div>
+            <div class="unit-card__title">${l.title}</div>
+            <div class="unit-card__desc">${l.desc}</div>
+            <div class="unit-card__bar"><span style="width:${pct}%"></span></div>
+            <div class="unit-card__foot"><span>${done}/${total} hechas</span><span class="stars">${stars ? starsStr(stars) : ""}</span></div>
+          </a>`;
+        }).join("")}
       </div>`);
   }
 
   function renderLab(id) {
     const lab = labById(id);
     if (!lab) return renderLabsMenu();
+    const total = lab.activities.length;
+    const doneCount = lab.activities.filter((_, i) => progress.labs[`${lab.id}.${i}`]).length;
+    const pct = Math.round(doneCount / total * 100);
+
     const acts = lab.activities.map((a, i) => {
       const key = `${lab.id}.${i}`;
       const done = !!progress.labs[key];
-      const obj = a.objetivos?.length ? `<div class="lab-goal"><strong>Objetivos:</strong> ${a.objetivos.join(" ")}</div>` : "";
-      const topo = a.topologia ? `<div class="lab-topo"><strong>Topología</strong>${a.topologia}</div>` : "";
-      const pasos = `<ol class="lab-steps">${a.pasos.map(p => `<li>${p}</li>`).join("")}</ol>`;
-      const notas = a.notas ? `<div class="lab-note"><strong>Nota:</strong> ${a.notas}</div>` : "";
-      return `<div class="lab-act${i === 0 ? " open" : ""}" data-i="${i}">
+      const obj = a.objetivos && a.objetivos.length
+        ? `<div class="lab-block lab-block--goal"><div class="lab-block__h">${icon("target")} Objetivos</div><ul>${a.objetivos.map(o => `<li>${o}</li>`).join("")}</ul></div>` : "";
+      const topo = a.topologia
+        ? `<div class="lab-block lab-block--topo"><div class="lab-block__h">${icon("net")} Topología</div><div>${a.topologia}</div></div>` : "";
+      const pasos = `<div class="lab-block__h lab-block__h--steps">${icon("list")} Paso a paso</div><ol class="lab-steps">${a.pasos.map(p => `<li>${p}</li>`).join("")}</ol>`;
+      const notas = a.notas ? `<div class="lab-note">${icon("info")}<span><strong>Nota:</strong> ${a.notas}</span></div>` : "";
+      return `<div class="lab-act${done ? " done" : ""}${i === 0 ? " open" : ""}">
         <button class="lab-act__head" data-toggle="${i}">
-          <span class="lab-act__n">${i + 1}</span>
-          <span>${a.name}</span>
+          <span class="lab-act__n">${done ? icon("check") : i + 1}</span>
+          <span class="lab-act__title">${a.name}</span>
           <span class="lab-act__chev">${icon("chev")}</span>
         </button>
         <div class="lab-act__body" ${i === 0 ? "" : "hidden"}>
           ${obj}${topo}${pasos}${notas}
           <div class="btn-row" style="margin-bottom:0">
-            <button class="btn ${done ? "" : "btn--primary"}" data-done="${key}">
-              ${done ? icon("check") + " Actividad hecha" : "Marcar como hecha"}
+            <button class="btn ${done ? "btn--done" : "btn--primary"}" data-done="${key}">
+              ${done ? icon("check") + " Hecha" : "Marcar como hecha"}
             </button>
           </div>
         </div>
@@ -341,11 +359,18 @@
       </a>` : "";
 
     const c = mount(`
-      <div class="chip">${badge(lab.glyph)} Packet Tracer</div>
+      <div class="chip">${icon("lab")} Packet Tracer</div>
       <h1 class="page-title" style="margin-top:10px">${lab.title}</h1>
       <p class="page-sub">${lab.intro}</p>
+
+      <div class="lab-progress">
+        <div class="progress-bar"><span style="width:${pct}%"></span></div>
+        <span class="lab-progress__txt">${doneCount}/${total} hechas</span>
+        <button class="btn btn--ghost" id="labExpand">Desplegar todo</button>
+      </div>
+
       ${playCta}
-      ${acts}
+      <div class="lab-acts">${acts}</div>
       <div class="pager"><span></span>
         <a class="next" href="#/labs"><small>Otros labs →</small>Volver a la lista</a></div>`);
 
@@ -353,6 +378,12 @@
       const box = btn.closest(".lab-act"), body = box.querySelector(".lab-act__body");
       const open = body.hidden; body.hidden = !open; box.classList.toggle("open", open);
     }));
+    let expanded = false;
+    $("#labExpand").addEventListener("click", () => {
+      expanded = !expanded;
+      c.querySelectorAll(".lab-act").forEach(box => { box.querySelector(".lab-act__body").hidden = !expanded; box.classList.toggle("open", expanded); });
+      $("#labExpand").textContent = expanded ? "Plegar todo" : "Desplegar todo";
+    });
     c.querySelectorAll("[data-done]").forEach(btn => btn.addEventListener("click", () => {
       const k = btn.dataset.done; progress.labs[k] = !progress.labs[k]; saveProgress(progress); router();
     }));
