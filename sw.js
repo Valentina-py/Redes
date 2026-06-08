@@ -3,7 +3,7 @@
    - HTML / CSS / JS: "network-first" (siempre intenta lo último; offline → copia guardada).
    - Íconos / manifest: "cache-first" (carga instantánea).
    Al cambiar el contenido, subí el número de versión (CACHE) para forzar el refresco. */
-const CACHE = "redes-v9";
+const CACHE = "redes-v10";
 const ASSETS = [
   "./", "./index.html",
   "./css/styles.css",

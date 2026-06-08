@@ -55,6 +55,32 @@ window.APP_DATA.units = [
       <li><strong>No guiados:</strong> se propagan por el aire — Wi-Fi, radio, microondas, satélite.</li>
     </ul>
 
+    <h2>Clasificación de las redes</h2>
+    <p><strong>Por alcance:</strong> <strong>LAN</strong> (local, un edificio) y <strong>WAN</strong> (extensa, ciudades o países). <strong>Por la relación entre equipos:</strong></p>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Modelo</th><th>Ventajas</th><th>Desventajas</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Cliente / Servidor</strong></td><td>Más seguridad y control; respaldos centralizados; sin datos duplicados.</td><td>SO de servidor más caro; todos dependen del servidor; más tráfico de peticiones.</td></tr>
+        <tr><td><strong>Peer to Peer (P2P)</strong></td><td>Menos tráfico; autonomía; no necesita administrador.</td><td>Se vuelve lenta al crecer; menos seguridad; difícil de administrar.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p><strong>Por topología</strong> (cómo se conectan físicamente):</p>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Topología</th><th>Cómo es</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Bus</strong></td><td>Un único canal compartido por todos los dispositivos.</td></tr>
+        <tr><td><strong>Anillo</strong></td><td>Cada estación se conecta a la siguiente; cada una repite la señal.</td></tr>
+        <tr><td><strong>Estrella</strong></td><td>Todos se conectan a un punto central por el que pasa todo.</td></tr>
+        <tr><td><strong>Árbol / jerárquica</strong></td><td>Varias estrellas ordenadas en jerarquía.</td></tr>
+        <tr><td><strong>Malla</strong></td><td>Cada nodo se conecta con todos; hay caminos alternativos.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p><strong>Ethernet</strong> es el estándar de LAN más usado (acceso al medio por <strong>CSMA/CD</strong>); <strong>Token Ring</strong> (IBM, IEEE 802.5, paso de testigo) quedó en desuso.</p>
+
     <h2>El núcleo de la red: conmutación</h2>
     <p>El núcleo es la malla de <strong>routers</strong> que reenvía datos entre sistemas terminales. Hay dos formas de mover datos por el núcleo:</p>
 
@@ -115,10 +141,15 @@ window.APP_DATA.units = [
     { q: "¿Qué significa <strong>store-and-forward</strong>?", opts: ["Reenvía bit a bit mientras llegan", "Recibe el paquete completo antes de reenviarlo", "Descarta paquetes al azar", "Comprime el paquete"], a: 1,
       exp: "Debe almacenar el paquete entero y recién ahí lo reenvía; por eso suma L/R en cada nodo." },
     { q: "En <strong>HFC</strong> la velocidad de acceso es…", opts: ["Dedicada por usuario", "Compartida entre los usuarios", "Siempre de 1 Gbps fija", "Solo de subida"], a: 1,
-      exp: "HFC (cable módem) comparte el medio entre los usuarios de la zona." }
+      exp: "HFC (cable módem) comparte el medio entre los usuarios de la zona." },
+    { q: "¿Qué <strong>topología</strong> usa un único canal compartido por todos los dispositivos?", opts: ["Estrella", "Anillo", "Bus", "Malla"], a: 2,
+      exp: "En bus todos comparten un mismo canal; en estrella todo pasa por un nodo central." },
+    { q: "¿Qué técnica de acceso al medio usa <strong>Ethernet</strong>?", opts: ["Paso de testigo (token)", "CSMA/CD", "TDM", "DHCP"], a: 1,
+      exp: "Ethernet usa CSMA/CD (detección de portadora con detección de colisiones); el token es de Token Ring." }
   ],
   cards: [
     { q: "¿Diferencia entre host y sistema terminal? ¿Un servidor web es sistema terminal?", a: "<strong>Host:</strong> dispositivo con IP que envía/recibe datos. <strong>Sistema terminal:</strong> el host que usan directamente usuarios o apps. <strong>Sí</strong>: un servidor web es sistema terminal (está en el extremo y responde solicitudes)." },
+    { q: "Topologías de red: bus, estrella, anillo y malla", a: "<strong>Bus:</strong> un canal compartido por todos. <strong>Estrella:</strong> todos a un nodo central. <strong>Anillo:</strong> cada estación se conecta a la siguiente y repite la señal. <strong>Malla:</strong> todos con todos, con caminos alternativos." },
     { q: "Componentes del retardo terminal a terminal: ¿cuáles son constantes y cuáles variables?", a: "Procesamiento, cola, transmisión y propagación. <strong>Variable:</strong> solo el de <strong>cola</strong> (depende de la congestión). Los otros tres son constantes." },
     { q: "Ventajas de conmutación de circuitos frente a paquetes", a: "Ancho de banda dedicado, retardo constante y predecible, sin congestión ni pérdidas, y QoS garantizada (ideal para voz/tiempo real)." }
   ]
@@ -163,6 +194,19 @@ window.APP_DATA.units = [
       <li><strong>Cookies:</strong> el servidor genera un ID, lo envía con <span class="cmd">Set-cookie</span>, el navegador lo guarda y lo reenvía en cada pedido → el servidor reconoce al usuario.</li>
       <li><strong>Caché web:</strong> guarda copias de objetos pedidos; si hay acierto, los entrega local (menos retardo). No reduce el retardo de <em>todos</em> los objetos, solo los que están en caché.</li>
     </ul>
+    <p>HTTP es <strong>"sin estado"</strong> (no recuerda pedidos previos) y sus mensajes son texto ASCII. <strong>Métodos:</strong> GET, POST, HEAD (HTTP/1.0) + PUT y DELETE (HTTP/1.1). Códigos de estado más comunes:</p>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Código</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td><strong>200</strong> OK</td><td>pedido exitoso, el objeto va en la respuesta</td></tr>
+        <tr><td><strong>301</strong> Moved Permanently</td><td>el objeto cambió de URL</td></tr>
+        <tr><td><strong>304</strong> Not Modified</td><td>respuesta a un GET condicional: no cambió</td></tr>
+        <tr><td><strong>400</strong> Bad Request</td><td>el servidor no entendió el pedido</td></tr>
+        <tr><td><strong>404</strong> Not Found</td><td>el documento no existe en el servidor</td></tr>
+      </tbody>
+    </table>
+    </div>
 
     <h2>FTP — transferencia de archivos</h2>
     <div class="callout def">
@@ -179,7 +223,33 @@ window.APP_DATA.units = [
     <p>Alicia (correo web) → Benito (POP3): la serie de protocolos es <strong>HTTP → SMTP → POP3</strong>.</p>
 
     <h2>DNS — nombres a direcciones</h2>
-    <p>El <strong>DNS</strong> traduce nombres (www.ejemplo.com) a direcciones IP. Es una base de datos <strong>jerárquica y distribuida</strong>: servidores <strong>raíz</strong> → <strong>TLD</strong> (.com, .ar…) → <strong>autoritativos</strong>. Usa <strong>UDP</strong> (puerto 53) para ser rápido.</p>
+    <p>El <strong>DNS</strong> traduce nombres (www.ejemplo.com) a direcciones IP. Es una base de datos <strong>jerárquica y distribuida</strong>: servidores <strong>raíz</strong> (13 en el mundo) → <strong>TLD</strong> (.com, .ar…) → <strong>autoritativos</strong>. Usa <strong>UDP</strong> (puerto 53) para ser rápido. La <strong>consulta iterativa</strong> deriva al siguiente servidor a contactar; la <strong>recursiva</strong> resuelve todo y devuelve la respuesta final. Los resultados se guardan en <strong>caché</strong> hasta que caduca su TTL.</p>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Registro DNS</th><th>Para qué sirve</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A</strong></td><td>nombre de host → dirección IP</td></tr>
+        <tr><td><strong>NS</strong></td><td>dominio → servidor autoritativo</td></tr>
+        <tr><td><strong>CNAME</strong></td><td>alias → nombre canónico real</td></tr>
+        <tr><td><strong>MX</strong></td><td>dominio → servidor de correo</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h2>Puertos bien conocidos</h2>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Servicio</th><th>Protocolo</th><th>Transporte</th><th>Puerto</th></tr></thead>
+      <tbody>
+        <tr><td>Web</td><td>HTTP / HTTPS</td><td>TCP</td><td>80 / 443</td></tr>
+        <tr><td>Envío de correo</td><td>SMTP</td><td>TCP</td><td>25</td></tr>
+        <tr><td>Descarga de correo</td><td>POP3 / IMAP</td><td>TCP</td><td>110 / 143</td></tr>
+        <tr><td>Archivos</td><td>FTP (control / datos)</td><td>TCP</td><td>21 / 20</td></tr>
+        <tr><td>Nombres</td><td>DNS</td><td>UDP</td><td>53</td></tr>
+        <tr><td>Terminal remota</td><td>Telnet / SSH</td><td>TCP</td><td>23 / 22</td></tr>
+      </tbody>
+    </table>
+    </div>
 
     <h2>P2P y BitTorrent</h2>
     <ul>
@@ -202,17 +272,302 @@ window.APP_DATA.units = [
     { q: "¿Qué protocolo de correo deja los mensajes <strong>en el servidor</strong> y sincroniza dispositivos?", opts: ["POP3", "IMAP", "SMTP", "HTTP"], a: 1,
       exp: "IMAP gestiona los correos en el servidor; POP3 típicamente descarga y borra." },
     { q: "HTTP <strong>persistente</strong> se caracteriza por…", opts: ["Una conexión TCP por objeto", "Reutilizar la misma conexión TCP para varios objetos", "No usar TCP", "Cifrar los datos"], a: 1,
-      exp: "Reutiliza la conexión: ahorra un RTT por objeto frente al no persistente." }
+      exp: "Reutiliza la conexión: ahorra un RTT por objeto frente al no persistente." },
+    { q: "¿Qué código de estado HTTP significa <strong>documento no encontrado</strong>?", opts: ["200", "301", "404", "500"], a: 2,
+      exp: "404 Not Found. 200 = OK, 301 = movido permanentemente." },
+    { q: "¿Qué registro DNS asocia un dominio con su <strong>servidor de correo</strong>?", opts: ["A", "MX", "CNAME", "NS"], a: 1,
+      exp: "MX → servidor de correo. A = nombre→IP, CNAME = alias, NS = servidor autoritativo." }
   ],
   cards: [
     { q: "¿Por qué FTP envía la información de control \"fuera de banda\"?", a: "Porque usa <strong>dos conexiones TCP</strong>: control (puerto 21, comandos y claves) y datos (puerto 20, archivos). El control viaja por una conexión distinta a los datos." },
+    { q: "Registros DNS: A, NS, CNAME y MX", a: "<strong>A:</strong> nombre de host → dirección IP. <strong>NS:</strong> dominio → servidor autoritativo. <strong>CNAME:</strong> alias → nombre canónico. <strong>MX:</strong> dominio → servidor de correo." },
     { q: "¿Qué necesita un proceso para identificar a otro proceso en otro host?", a: "La <strong>dirección IP</strong> del host (la máquina) y el <strong>número de puerto</strong> (el proceso dentro de ese host)." },
     { q: "¿Para qué sirven SMTP, POP3 e IMAP?", a: "<strong>SMTP</strong> envía el correo (push). <strong>POP3</strong> descarga al dispositivo. <strong>IMAP</strong> gestiona los mensajes en el servidor y sincroniza varios dispositivos." }
   ]
 },
 
 /* ===================================================================
-   UNIDAD 3 — MODELO DE CAPAS Y ENCAPSULAMIENTO
+   UNIDAD 3 — CAPA DE TRANSPORTE
+   =================================================================== */
+{
+  id: "transporte",
+  glyph: "⇅",
+  icon: "transport",
+  title: "Capa de Transporte",
+  desc: "TCP y UDP, puertos y sockets, segmento, 3-way handshake, control de flujo y de congestión.",
+  html: `
+    <p class="lead">La <strong>capa de transporte</strong> es el <strong>puente entre las aplicaciones y la red</strong>. Ofrece <strong>comunicación lógica proceso a proceso</strong>: dos programas en hosts distintos "se hablan" como si estuvieran conectados directamente, aunque entre ellos haya muchos routers.</p>
+
+    <div class="callout def">
+      <strong class="callout__tag">Proceso a proceso</strong>
+      La capa de <strong>red</strong> conecta <em>hosts</em> entre sí; la capa de <strong>transporte</strong> conecta <em>procesos</em> (aplicaciones) dentro de esos hosts. Es la <strong>capa 4</strong> y su PDU es el <strong>segmento</strong>.
+    </div>
+
+    <h2>Multiplexación, puertos y sockets</h2>
+    <p>Un <strong>socket</strong> es la puerta por la que un proceso envía y recibe datos. Como muchas apps usan la red a la vez, el transporte hace:</p>
+    <ul>
+      <li><strong>Multiplexación</strong> (emisor): junta los datos de varios sockets y les agrega una cabecera con su <strong>número de puerto</strong>.</li>
+      <li><strong>Demultiplexación</strong> (receptor): usa los números de puerto para entregar cada segmento al <strong>socket correcto</strong>.</li>
+    </ul>
+    <div class="callout">
+      <strong class="callout__tag">Puertos (16 bits → 0 a 65535)</strong>
+      Un socket <strong>UDP</strong> se identifica con una <strong>tupla de 2</strong>: (IP destino, puerto destino). Un socket <strong>TCP</strong> se identifica con una <strong>tupla de 4</strong>: IP origen, puerto origen, IP destino, puerto destino. Por eso un servidor TCP puede atender muchos clientes a la vez.
+    </div>
+
+    <h2>UDP — rápido y sin garantías</h2>
+    <p><strong>UDP</strong> (User Datagram Protocol) es un servicio <strong>"best effort"</strong> (mejor esfuerzo): los datagramas pueden perderse o llegar desordenados.</p>
+    <ul>
+      <li><strong>Sin conexión:</strong> no hay <em>handshake</em>, empieza a enviar de inmediato.</li>
+      <li><strong>Cabecera mínima de 8 bytes</strong> → baja sobrecarga.</li>
+      <li><strong>Sin control de congestión:</strong> envía al ritmo que quiera.</li>
+    </ul>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Cabecera UDP (8 bytes)</th><th>Tamaño</th></tr></thead>
+      <tbody>
+        <tr><td>Puerto origen</td><td>16 bits</td></tr>
+        <tr><td>Puerto destino</td><td>16 bits</td></tr>
+        <tr><td>Longitud (cabecera + datos)</td><td>16 bits</td></tr>
+        <tr><td>Checksum (detección de errores, opcional)</td><td>16 bits</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p><strong>Usos típicos:</strong> DNS, streaming de audio/video, juegos en línea, VoIP, TFTP. Si una app quiere fiabilidad sobre UDP, debe agregarla ella misma en la capa de aplicación.</p>
+
+    <h2>TCP — fiable y orientado a conexión</h2>
+    <p><strong>TCP</strong> (Transmission Control Protocol) entrega un <strong>flujo de bytes fiable y en orden</strong>, es <strong>full-duplex</strong> y <strong>punto a punto</strong>. Su cabecera mide unos <strong>20 bytes</strong>.</p>
+    <ul>
+      <li><strong>Número de secuencia:</strong> cuenta <em>bytes</em> (es el nº del primer byte del segmento dentro del flujo).</li>
+      <li><strong>Número de ACK:</strong> el nº del <strong>siguiente byte esperado</strong>; es un ACK <strong>acumulativo</strong>.</li>
+      <li><strong>Banderas (flags):</strong> <span class="cmd">SYN</span> inicia, <span class="cmd">FIN</span> cierra, <span class="cmd">RST</span> resetea; además ACK, PSH, URG.</li>
+    </ul>
+
+    <h3>Establecimiento: saludo en 3 pasos (3-way handshake)</h3>
+    <div class="formula-box">1) Cliente → <strong>SYN</strong> (nº de secuencia inicial)
+2) Servidor → <strong>SYN-ACK</strong> (reconoce y manda su nº inicial)
+3) Cliente → <strong>ACK</strong> (ya puede llevar datos)</div>
+    <p>El cierre usa segmentos <strong>FIN</strong> + <strong>ACK</strong> en ambos sentidos (4 pasos).</p>
+
+    <h2>Transferencia fiable (rdt)</h2>
+    <p>TCP construye un servicio confiable sobre el IP <em>no fiable</em> combinando: <strong>números de secuencia</strong>, <strong>ACK</strong>, <strong>temporizadores + retransmisión</strong> y <strong>checksum</strong>. La retransmisión se dispara por:</p>
+    <ul>
+      <li><strong>Timeout</strong> (expira el temporizador). El timeout se estima: <span class="cmd">TimeoutInterval = EstimatedRTT + 4·DevRTT</span>.</li>
+      <li><strong>3 ACK duplicados</strong> → <strong>retransmisión rápida</strong> (no espera al timeout).</li>
+    </ul>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Protocolo ARQ</th><th>Idea</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Parada y espera</strong></td><td>envía 1 trama y espera su ACK. Simple pero ineficiente.</td></tr>
+        <tr><td><strong>Ventana deslizante</strong></td><td>envía varias tramas sin esperar ACK de cada una; la ventana avanza con los ACK.</td></tr>
+        <tr><td><strong>Retroceder N</strong> (Go-Back-N)</td><td>ante una pérdida, retransmite el paquete y <em>todos</em> los siguientes (receptor sin buffer).</td></tr>
+        <tr><td><strong>Repetición selectiva</strong></td><td>retransmite <em>solo</em> el paquete con error (receptor con buffer).</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h2>Control de flujo vs. control de congestión</h2>
+    <div class="callout warn">
+      <strong class="callout__tag">¡No confundir!</strong>
+      <strong>Control de flujo:</strong> evita saturar al <em>receptor</em>. <strong>Control de congestión:</strong> evita saturar la <em>red</em>.
+    </div>
+    <ul>
+      <li><strong>Flujo:</strong> el receptor anuncia el espacio libre de su buffer en el campo <strong>RcvWindow</strong>; el emisor no envía más bytes sin ACK que ese valor.</li>
+      <li><strong>Congestión:</strong> el emisor mantiene una ventana <strong>cwnd</strong> y aplica <strong>AIMD</strong> (incremento aditivo +1 MSS por RTT; decremento multiplicativo: cwnd ÷ 2 al detectar pérdida) → curva en "diente de sierra". Al iniciar usa <strong>arranque lento</strong> (cwnd = 1 MSS y se duplica cada RTT).</li>
+    </ul>
+
+    <h2>TCP vs UDP — resumen</h2>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Aspecto</th><th>TCP</th><th>UDP</th></tr></thead>
+      <tbody>
+        <tr><td>Conexión</td><td>Sí (3-way handshake)</td><td>No (sin conexión)</td></tr>
+        <tr><td>Fiabilidad</td><td>Fiable y en orden</td><td>Best effort</td></tr>
+        <tr><td>Cabecera</td><td>~20 bytes</td><td>8 bytes</td></tr>
+        <tr><td>Control de flujo / congestión</td><td>Sí / Sí</td><td>No / No</td></tr>
+        <tr><td>Usos</td><td>Web, correo, FTP</td><td>DNS, streaming, juegos, VoIP</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="callout tip">
+      <strong class="callout__tag">Practicá</strong>
+      Repasá esta unidad con el <a href="#/quiz/transporte">quiz de Capa de Transporte</a> y poné a prueba los protocolos por capa en el juego <a href="#/tool/capas">Protocolos por capa</a>.
+    </div>`,
+  quiz: [
+    { q: "¿Cómo se llama la PDU (unidad de datos) de la capa de transporte?", opts: ["Paquete", "Segmento", "Trama", "Mensaje"], a: 1,
+      exp: "El transporte usa el segmento (en UDP también se lo llama datagrama)." },
+    { q: "¿Qué protocolo de transporte es <strong>sin conexión</strong> y best effort?", opts: ["TCP", "UDP", "Los dos", "Ninguno"], a: 1,
+      exp: "UDP no hace handshake ni garantiza entrega; TCP sí es orientado a conexión y fiable." },
+    { q: "El <strong>saludo en 3 pasos</strong> de TCP es…", opts: ["SYN → ACK", "SYN → SYN-ACK → ACK", "FIN → ACK → FIN", "ACK → SYN → ACK"], a: 1,
+      exp: "Cliente SYN, servidor SYN-ACK, cliente ACK (que ya puede llevar datos)." },
+    { q: "El <strong>control de flujo</strong> en TCP evita saturar…", opts: ["la red", "al receptor", "al router", "al emisor"], a: 1,
+      exp: "El flujo cuida al receptor (RcvWindow). Saturar la RED es tarea del control de congestión." },
+    { q: "¿Cuántos bytes tiene la <strong>cabecera de UDP</strong>?", opts: ["8", "16", "20", "40"], a: 0,
+      exp: "8 bytes: puerto origen, puerto destino, longitud y checksum." },
+    { q: "¿Qué identifica a un <strong>socket TCP</strong>?", opts: ["Solo el puerto destino", "(IP destino, puerto destino)", "Una tupla de 4: IP y puerto de origen y destino", "La dirección MAC"], a: 2,
+      exp: "TCP usa los 4 valores; UDP, en cambio, solo la 2-tupla (IP y puerto destino)." },
+    { q: "La <strong>retransmisión rápida</strong> de TCP se dispara al recibir…", opts: ["1 ACK", "3 ACK duplicados", "un SYN", "un FIN"], a: 1,
+      exp: "Con 3 ACK duplicados TCP reenvía el segmento sin esperar a que expire el temporizador." },
+    { q: "En <strong>AIMD</strong>, ¿qué pasa con la ventana <em>cwnd</em> al detectar una pérdida?", opts: ["Aumenta 1 MSS", "Se duplica", "Se divide por 2", "Se pone en 0"], a: 2,
+      exp: "Decremento multiplicativo: cwnd ÷ 2 (y crece +1 MSS por RTT cuando no hay pérdidas)." }
+  ],
+  cards: [
+    { q: "TCP vs UDP: ¿en qué se diferencian?", a: "<strong>TCP:</strong> orientado a conexión (3-way handshake), fiable y en orden, con control de flujo y de congestión, cabecera ~20 bytes (web, correo, FTP). <strong>UDP:</strong> sin conexión, best effort, cabecera 8 bytes, rápido (DNS, streaming, juegos, VoIP)." },
+    { q: "¿En qué consiste el saludo en 3 pasos (3-way handshake)?", a: "1) el cliente envía <strong>SYN</strong> con su nº de secuencia inicial; 2) el servidor responde <strong>SYN-ACK</strong>; 3) el cliente envía <strong>ACK</strong> (que ya puede transportar datos). Recién ahí queda establecida la conexión." },
+    { q: "Diferencia entre control de flujo y control de congestión", a: "<strong>Flujo:</strong> evita saturar al <em>receptor</em> usando la ventana RcvWindow que él anuncia. <strong>Congestión:</strong> evita saturar la <em>red</em> ajustando cwnd con AIMD (sube +1 MSS por RTT, baja a la mitad al perder paquetes)." }
+  ]
+},
+
+/* ===================================================================
+   UNIDAD 4 — CAPA DE RED Y DIRECCIONAMIENTO IP
+   =================================================================== */
+{
+  id: "red",
+  glyph: "⊕",
+  icon: "globe",
+  title: "Capa de Red y Direccionamiento IP",
+  desc: "IP, reenvío y enrutamiento, ICMP, NAT, clases, máscaras, CIDR y subnetting.",
+  tool: "subredes",
+  html: `
+    <p class="lead">La <strong>capa de red</strong> lleva los datos desde el host de origen hasta el de destino, <strong>atravesando muchas redes</strong>. Su PDU es el <strong>paquete</strong> (o <strong>datagrama</strong> IP). Se llama "Internet" en el modelo TCP/IP y "Red" (capa 3) en OSI.</p>
+
+    <h2>Reenvío vs. enrutamiento</h2>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Reenvío (forwarding)</th><th>Enrutamiento (routing)</th></tr></thead>
+      <tbody>
+        <tr><td>Acción <strong>local</strong> de un router: mover el paquete de la interfaz de entrada a la de salida.</td><td>Proceso de <strong>extremo a extremo</strong>: decidir la <em>ruta completa</em> que siguen los paquetes.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>El algoritmo de enrutamiento rellena la <strong>tabla de reenvío</strong> de cada router (dirección destino → interfaz de salida).</p>
+
+    <h2>El protocolo IP</h2>
+    <p>IP es <strong>no orientado a conexión</strong> y <strong>best effort</strong>: no garantiza entrega ni orden. Campos clave de la cabecera:</p>
+    <ul>
+      <li><strong>TTL</strong> (Time To Live): nº máximo de routers que puede atravesar. Se <strong>resta 1 en cada router</strong>; si llega a <strong>0, el paquete se descarta</strong> (evita bucles infinitos).</li>
+      <li><strong>Protocolo:</strong> indica a qué protocolo superior entregar los datos (TCP o UDP).</li>
+      <li><strong>Direcciones IP</strong> de origen y destino (32 bits cada una).</li>
+      <li><strong>Fragmentación:</strong> si el datagrama supera la <strong>MTU</strong> (tamaño máximo de trama del enlace), se divide en fragmentos; el <strong>reensamblado se hace solo en el destino</strong>.</li>
+    </ul>
+
+    <h2>Direccionamiento IPv4</h2>
+    <p>Una dirección IPv4 tiene <strong>32 bits</strong> = <strong>4 octetos</strong> (4 grupos de 8 bits), escritos en <strong>notación decimal punteada</strong>. Cada octeto va de <strong>0 a 255</strong>.</p>
+    <div class="formula-box">192.168.1.23  =  11000000.10101000.00000001.00010111</div>
+    <p>Se divide en <strong>parte de red</strong> (identifica la red) y <strong>parte de host</strong> (identifica el equipo). Cuánto ocupa cada parte lo define la <strong>clase</strong> o la <strong>máscara</strong>.</p>
+
+    <h3>Clases de direcciones</h3>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Clase</th><th>1.er octeto</th><th>Máscara por defecto</th><th>Hosts por red</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A</strong> (0xxxxxxx)</td><td>0 – 127</td><td>255.0.0.0 (/8)</td><td>16.777.214</td></tr>
+        <tr><td><strong>B</strong> (10xxxxxx)</td><td>128 – 191</td><td>255.255.0.0 (/16)</td><td>65.534</td></tr>
+        <tr><td><strong>C</strong> (110xxxxx)</td><td>192 – 223</td><td>255.255.255.0 (/24)</td><td>254</td></tr>
+        <tr><td><strong>D</strong> (multicast)</td><td>224 – 239</td><td>—</td><td>—</td></tr>
+        <tr><td><strong>E</strong> (reservada)</td><td>240 – 255</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>Direcciones especiales y privadas</h3>
+    <ul>
+      <li><strong>Dirección de red:</strong> todos los bits de host en <strong>0</strong> (la <em>primera</em> de la subred). No se asigna a equipos.</li>
+      <li><strong>Dirección de broadcast:</strong> todos los bits de host en <strong>1</strong> (la <em>última</em>). Tampoco se asigna.</li>
+      <li><strong>Loopback:</strong> <span class="cmd">127.0.0.1</span> = la propia máquina.</li>
+      <li><strong>Privadas</strong> (no salen a Internet): <span class="cmd">10.0.0.0–10.255.255.255</span>, <span class="cmd">172.16.0.0–172.31.255.255</span>, <span class="cmd">192.168.0.0–192.168.255.255</span>.</li>
+    </ul>
+    <div class="callout def">
+      <strong class="callout__tag">¿Por qué se restan 2?</strong>
+      Los hosts útiles de una red son <strong>2<sup>h</sup> − 2</strong> (h = bits de host): se descuentan la <em>dirección de red</em> y la de <em>broadcast</em>, que no son asignables.
+    </div>
+
+    <h2>Máscara de subred, CIDR y subnetting</h2>
+    <p>La <strong>máscara</strong> indica con <strong>1</strong> los bits de red y con <strong>0</strong> los de host. En <strong>CIDR</strong> se escribe <span class="cmd">a.b.c.d/x</span>, donde <strong>x</strong> = cantidad de bits de red (el prefijo).</p>
+    <div class="callout">
+      <strong class="callout__tag">Crear subredes</strong>
+      Se "toman prestados" bits de la parte de <em>host</em> para crear subredes. Fórmulas: <strong>nº de subredes = 2<sup>n</sup></strong> (n = bits prestados) y <strong>hosts útiles = 2<sup>h</sup> − 2</strong>.
+    </div>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Prefijo</th><th>Máscara</th><th>Hosts útiles</th></tr></thead>
+      <tbody>
+        <tr><td>/24</td><td>255.255.255.0</td><td>254</td></tr>
+        <tr><td>/25</td><td>255.255.255.128</td><td>126</td></tr>
+        <tr><td>/26</td><td>255.255.255.192</td><td>62</td></tr>
+        <tr><td>/27</td><td>255.255.255.224</td><td>30</td></tr>
+        <tr><td>/28</td><td>255.255.255.240</td><td>14</td></tr>
+        <tr><td>/30</td><td>255.255.255.252</td><td>2</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>Ejemplo resuelto: 192.168.10.0 en 4 subredes</h3>
+    <p>Para <strong>4 subredes</strong> se prestan <strong>2 bits</strong> (2² = 4). Quedan 6 bits de host → 2⁶ − 2 = <strong>62 hosts</strong>. Máscara: <span class="cmd">255.255.255.192</span> (/26). El "salto" de bloque es 64:</p>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Dirección de red</th><th>Rango útil</th><th>Broadcast</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>192.168.10.0</td><td>.1 – .62</td><td>192.168.10.63</td></tr>
+        <tr><td>2</td><td>192.168.10.64</td><td>.65 – .126</td><td>192.168.10.127</td></tr>
+        <tr><td>3</td><td>192.168.10.128</td><td>.129 – .190</td><td>192.168.10.191</td></tr>
+        <tr><td>4</td><td>192.168.10.192</td><td>.193 – .254</td><td>192.168.10.255</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="callout tip">
+      <strong class="callout__tag">Practicá</strong>
+      Resolvé subredes al instante con la <a href="#/tool/subredes">Calculadora de subredes</a> y entrená con los <a href="#/practica">ejercicios</a>.
+    </div>
+
+    <h2>ICMP, NAT y enrutamiento</h2>
+    <ul>
+      <li><strong>ICMP:</strong> protocolo de diagnóstico y errores. <span class="cmd">ping</span> usa eco (tipos 8 y 0); <span class="cmd">traceroute</span> usa TTL creciente y el mensaje "TTL caducado".</li>
+      <li><strong>NAT/PAT:</strong> traduce muchas IP <em>privadas</em> a <strong>una sola IP pública</strong> (la del router). Ahorra direcciones IPv4 y aporta seguridad; con puertos soporta miles de conexiones por IP.</li>
+      <li><strong>DHCP:</strong> asigna la IP automáticamente (discover → offer → request → ACK) y entrega también el <strong>gateway</strong>, el <strong>DNS</strong> y la <strong>máscara</strong>.</li>
+    </ul>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Protocolo de enrutamiento</th><th>Tipo</th><th>Métrica</th></tr></thead>
+      <tbody>
+        <tr><td><strong>RIP</strong></td><td>Vector de distancias (intra-AS)</td><td>nº de saltos, máx. 15 (16 = ∞)</td></tr>
+        <tr><td><strong>OSPF</strong></td><td>Estado de enlace, Dijkstra (intra-AS)</td><td>coste configurable</td></tr>
+        <tr><td><strong>BGP</strong></td><td>Vector de ruta (inter-AS)</td><td>políticas entre Sistemas Autónomos</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>El <strong>default gateway</strong> es el router de primer salto al que se envían los paquetes cuando no hay una ruta más específica.</p>
+
+    <h2>IPv6 (en breve)</h2>
+    <p><strong>IPv6</strong> usa direcciones de <strong>128 bits</strong> (8 grupos hexadecimales) porque las de IPv4 (32 bits, ~4.300 millones) se agotaron. Se abrevia omitiendo ceros a la izquierda y usando <span class="cmd">::</span> una sola vez para bloques de ceros. En IPv6 no existe broadcast (lo reemplaza multicast).</p>`,
+  quiz: [
+    { q: "¿Cómo se llama la PDU de la <strong>capa de red</strong>?", opts: ["Segmento", "Paquete / datagrama", "Trama", "Bits"], a: 1,
+      exp: "Mensaje (app) → Segmento (transporte) → Paquete/datagrama (red) → Trama (enlace)." },
+    { q: "¿Cuál es la <strong>máscara por defecto</strong> de una red Clase C?", opts: ["255.0.0.0", "255.255.0.0", "255.255.255.0", "255.255.255.255"], a: 2,
+      exp: "Clase C = /24 = 255.255.255.0 (3 octetos de red, 1 de host)." },
+    { q: "¿Cuántos <strong>hosts útiles</strong> tiene una red /26?", opts: ["64", "62", "30", "126"], a: 1,
+      exp: "/26 deja 6 bits de host → 2⁶ − 2 = 62 (se restan red y broadcast)." },
+    { q: "La dirección 120.17.84.170 pertenece a la clase…", opts: ["A", "B", "C", "D"], a: 0,
+      exp: "El primer octeto (120) está entre 0 y 127 → Clase A." },
+    { q: "¿Qué rango es de direcciones <strong>privadas</strong>?", opts: ["8.0.0.0/8", "192.168.0.0/16", "200.17.0.0/16", "127.0.0.0/8"], a: 1,
+      exp: "Privadas: 10.0.0.0/8, 172.16.0.0/12 y 192.168.0.0/16. 127 es loopback." },
+    { q: "Si el campo <strong>TTL</strong> de un paquete llega a 0, el router…", opts: ["lo reenvía igual", "descarta el paquete", "lo fragmenta", "lo devuelve al origen"], a: 1,
+      exp: "TTL se resta 1 por router; en 0 se descarta para evitar bucles infinitos." },
+    { q: "¿Qué hace <strong>NAT</strong>?", opts: ["Traduce nombres a IP", "Traduce IP privadas a una IP pública", "Cifra los paquetes", "Enruta entre Sistemas Autónomos"], a: 1,
+      exp: "NAT/PAT mapea las IP privadas de la LAN a la única IP pública del router." },
+    { q: "Una dirección con <strong>todos los bits de host en 1</strong> es la…", opts: ["dirección de red", "dirección de broadcast", "puerta de enlace", "loopback"], a: 1,
+      exp: "Host todo en 1 = broadcast (la última de la subred); todo en 0 = dirección de red (la primera)." }
+  ],
+  cards: [
+    { q: "Clases A, B y C: rango del 1.er octeto, máscara y hosts", a: "<strong>A:</strong> 0–127, máscara 255.0.0.0 (/8), 16.777.214 hosts. <strong>B:</strong> 128–191, 255.255.0.0 (/16), 65.534. <strong>C:</strong> 192–223, 255.255.255.0 (/24), 254. (D = multicast, E = reservada.)" },
+    { q: "¿Cómo calculo subredes y hosts? (ejemplo /26)", a: "Subredes = <strong>2<sup>n</sup></strong> (n bits prestados); hosts útiles = <strong>2<sup>h</sup> − 2</strong> (h bits de host). Ej.: prestar 2 bits a una clase C → 4 subredes, máscara 255.255.255.192 (/26), 62 hosts cada una, saltos de 64 (.0, .64, .128, .192)." },
+    { q: "Dirección de red vs dirección de broadcast", a: "<strong>Red:</strong> bits de host todos en <strong>0</strong> (primera dirección de la subred). <strong>Broadcast:</strong> bits de host todos en <strong>1</strong> (última). Ninguna se asigna a equipos; por eso se restan 2 al contar hosts." },
+    { q: "Reenvío vs enrutamiento; RIP vs OSPF", a: "<strong>Reenvío:</strong> acción local de mover un paquete de la entrada a la salida del router. <strong>Enrutamiento:</strong> calcular la ruta completa. <strong>RIP:</strong> vector de distancias, métrica = saltos (máx 15). <strong>OSPF:</strong> estado de enlace con Dijkstra, coste configurable." }
+  ]
+},
+
+/* ===================================================================
+   MODELO DE CAPAS Y ENCAPSULAMIENTO (síntesis)
    =================================================================== */
 {
   id: "capas",
@@ -312,7 +667,7 @@ window.APP_DATA.units = [
 },
 
 /* ===================================================================
-   UNIDAD 4 — SEGURIDAD EN REDES
+   SEGURIDAD EN REDES
    =================================================================== */
 {
   id: "seguridad",
