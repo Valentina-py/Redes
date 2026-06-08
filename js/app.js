@@ -42,6 +42,8 @@
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>',
     transport: '<path d="M4 9h16l-4-4M20 15H4l4 4"/>',
     globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/>',
+    link: '<rect x="2.5" y="9" width="8.5" height="6" rx="3"/><rect x="13" y="9" width="8.5" height="6" rx="3"/><path d="M9 12h6"/>',
+    game: '<rect x="2" y="7" width="20" height="10" rx="4"/><path d="M7 11v2M6 12h2M15.5 11.5h.01M18 13.5h.01"/>',
   };
   function icon(name, cls) {
     return `<svg class="ic ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -52,6 +54,16 @@
     ["subredes", "Calculadora de subredes", "Calculá red, broadcast, rango de hosts y cantidad a partir de una IP y su máscara."],
     ["retardos", "Retardos y throughput", "Retardo de transmisión, propagación, total y cuello de botella."],
     ["capas", "Protocolos por capa", "Juego: ubicá cada protocolo en su capa del modelo TCP/IP."],
+  ];
+  const GAME_ICON = { subneteo: "globe", puertos: "app", tcpudp: "transport", claseip: "net", privada: "shield", secuencia: "list", siglas: "cards" };
+  const GAMES = [
+    ["subneteo", "Subneteo exprés", "Te damos una IP y máscara: calculá red, broadcast y hosts. Con autocorrección."],
+    ["puertos", "Puerto ↔ servicio", "Adiviná qué puerto usa cada protocolo (HTTP, DNS, SMTP…)."],
+    ["tcpudp", "TCP o UDP", "Decidí si cada escenario usa TCP o UDP."],
+    ["claseip", "Clase de IP", "Clasificá direcciones en A, B, C, D o E."],
+    ["privada", "Pública o privada", "Decidí si una IP es pública o privada."],
+    ["secuencia", "Ordená la secuencia", "Poné en orden el handshake, el encapsulamiento, DHCP y ARP."],
+    ["siglas", "Memotest de siglas", "Emparejá cada sigla de redes con su significado."],
   ];
   function badge(glyph, big) { return `<span class="ubadge${big ? " ubadge--lg" : ""}">${glyph}</span>`; }
 
@@ -68,9 +80,12 @@
   progress.labs = progress.labs || {};
   progress.labSim = progress.labSim || {};
   progress.build = progress.build || {};
-  progress.game = progress.game || {};       // mejor puntaje de juegos (capas)
+  progress.game = progress.game || {};       // mejor puntaje del juego "protocolos por capa"
+  progress.games = progress.games || {};     // mejores estrellas (0-3) de la sección Juegos
   progress.cards = progress.cards || {};     // mazos repasados por completo
   progress.practice = progress.practice || {}; // sets de ejercicios completados
+  progress.exam = progress.exam || null;     // mejor resultado del simulacro de parcial
+  let examTimer = null;                       // intervalo del cronómetro del simulacro
   function starsStr(n) { return "★".repeat(n) + "☆".repeat(3 - n); }
 
   /* ---------------- PUNTOS / XP (derivado del progreso) ----------------
@@ -84,6 +99,7 @@
       labs:       Object.values(progress.labSim).reduce((s, st) => s + (st || 0) * 25, 0),
       simulador:  Object.values(progress.build).filter(Boolean).length * 60,
       juego:      (progress.game.capas || 0) * 5,
+      juegos:     Object.values(progress.games).reduce((s, v) => s + (v || 0), 0) * 10,
       flashcards: Object.values(progress.cards).filter(Boolean).length * 10,
       practica:   Object.values(progress.practice).filter(Boolean).length * 15,
     };
@@ -96,6 +112,7 @@
       teoria: UNITS.length * 15, quiz: quizMax,
       labs: (Object.keys(window.LAB_SIM || {}).length) * 3 * 25,
       simulador: 2 * 60, juego: CAPAS_TOTAL * 5,
+      juegos: GAMES.length * 3 * 10,
       flashcards: DECKS.length * 10, practica: PRACTICE.length * 15,
     };
   }
@@ -143,9 +160,11 @@
     html += navItem("#/play", icon("play"), "Modo interactivo", null);
     html += navItem("#/build", icon("build"), "Simulador de red", null);
     html += `<div class="nav__group-title">Práctica</div>`;
+    html += navItem("#/games", icon("game"), "Juegos", null);
     html += navItem("#/practica", icon("practice"), "Ejercicios", null);
     html += navItem("#/cards", icon("cards"), "Flashcards", null);
     html += navItem("#/quiz", icon("quiz"), "Autoevaluación", null);
+    html += navItem("#/exam", icon("trophy"), "Simulacro de parcial", null);
     nav.innerHTML = html;
   }
   function navItem(href, ic, label, unit) {
@@ -163,6 +182,8 @@
     const parts = hash.replace(/^#\//, "").split("/");
     const root = parts[0] || "", id = parts[1] || "";
     $("#content").scrollTop = 0; window.scrollTo(0, 0);
+    if (window.Games && window.Games.stopAll) window.Games.stopAll();
+    if (examTimer) { clearInterval(examTimer); examTimer = null; }
 
     let crumb = "Inicio";
     if (root === "") renderHome();
@@ -176,6 +197,9 @@
     else if (root === "build") { crumb = "Simulador de red"; renderBuildMenu(); }
     else if (root === "quiz" && id) { crumb = "Autoevaluación"; renderQuiz(id); }
     else if (root === "quiz") { crumb = "Autoevaluación"; renderQuizMenu(); }
+    else if (root === "games" && id) { crumb = "Juegos"; renderGame(id); }
+    else if (root === "games") { crumb = "Juegos"; renderGamesMenu(); }
+    else if (root === "exam") { crumb = "Simulacro de parcial"; renderExam(); }
     else if (root === "cards" && id) { crumb = "Flashcards"; renderCards(id); }
     else if (root === "cards") { crumb = "Flashcards"; renderCardsMenu(); }
     else if (root === "practica" && id) { crumb = "Ejercicios"; renderPractice(id); }
@@ -187,6 +211,8 @@
     setActiveNav("#/" + (root + (id && ["unit", "tool", "labs"].includes(root) ? "/" + id : "")).replace(/\/$/, ""));
     if (root === "play") setActiveNav("#/play");
     if (root === "build") setActiveNav("#/build");
+    if (root === "games") setActiveNav("#/games");
+    if (root === "exam") setActiveNav("#/exam");
     if (root === "") setActiveNav("#/");
     refreshProgressUI();
     closeSidebar();
@@ -247,9 +273,20 @@
         <span class="play-cta__go">Armar →</span>
       </a>
 
+      <h2>Juegos</h2>
+      <div class="tool-grid">
+        ${GAMES.slice(0, 4).map(([id, t, d]) => `<a class="tool-card" href="#/games/${id}">
+          <span class="tool-card__ic">${icon(GAME_ICON[id] || "game")}</span>
+          <div><div class="tool-card__title">${t}</div><div class="unit-card__desc">${d}</div></div></a>`).join("")}
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <a class="btn" href="#/games">${icon("game")} Ver todos los juegos</a>
+      </div>
+
       <h2>Para practicar</h2>
       <div class="btn-row">
-        <a class="btn btn--primary" href="#/practica">${icon("practice")} Ejercicios</a>
+        <a class="btn btn--primary" href="#/exam">${icon("trophy")} Simulacro de parcial</a>
+        <a class="btn" href="#/practica">${icon("practice")} Ejercicios</a>
         <a class="btn" href="#/cards">${icon("cards")} Flashcards</a>
         <a class="btn" href="#/quiz">${icon("quiz")} Autoevaluación</a>
         <a class="btn" href="#/progress">${icon("progress")} Mi progreso</a>
@@ -597,6 +634,136 @@
     paint();
   }
 
+  /* ---------------- JUEGOS ---------------- */
+  function gameStars(id) { return progress.games[id] || 0; }
+  function starsMini(n) { return `<span class="stars-mini">${"★".repeat(n)}${"☆".repeat(3 - n)}</span>`; }
+  function renderGamesMenu() {
+    const items = GAMES.map(([id, t, d]) => `
+      <a class="tool-card" href="#/games/${id}">
+        <span class="tool-card__ic">${icon(GAME_ICON[id] || "game")}</span>
+        <div><div class="tool-card__title">${t} ${gameStars(id) ? starsMini(gameStars(id)) : ""}</div>
+        <div class="unit-card__desc">${d}</div></div></a>`).join("");
+    mount(`
+      <h1 class="page-title">${icon("game", "ic--title")} Juegos</h1>
+      <p class="page-sub">Practicá jugando: cada juego te da hasta ★★★ y suma XP. Ideal para fijar conceptos.</p>
+      <div class="tool-grid">${items}</div>
+      <div class="callout tip">
+        <strong class="callout__tag">También es un juego</strong>
+        Probá <a href="#/tool/capas">Protocolos por capa</a>: ubicá cada protocolo en su capa del modelo TCP/IP.
+      </div>`);
+  }
+  function renderGame(id) {
+    const meta = GAMES.find(g => g[0] === id);
+    if (!meta || !window.Games[id]) return renderGamesMenu();
+    const c = mount(`
+      <div class="chip">${icon(GAME_ICON[id] || "game")} Juego</div>
+      <h1 class="page-title" style="margin:10px 0 4px">${meta[1]}</h1>
+      <p class="page-sub">${meta[2]}</p>
+      <div id="gameMount"></div>`);
+    window.Games[id](c.querySelector("#gameMount"), {
+      onFinish: (st) => {
+        if ((progress.games[id] || 0) < st) { progress.games[id] = st; saveProgress(progress); }
+        refreshProgressUI();
+      }
+    });
+  }
+
+  /* ---------------- SIMULACRO DE PARCIAL (cronometrado) ---------------- */
+  function renderExam() {
+    const pool = [];
+    UNITS.forEach(u => u.quiz.forEach(q => pool.push({ ...q, _u: u.title })));
+    const N = Math.min(15, pool.length);
+    const questions = shuffle(pool).slice(0, N);
+    const DURATION = 12 * 60;
+    let remaining = DURATION, submitted = false;
+    const answers = new Array(N).fill(-1);
+
+    const qHtml = questions.map((q, qi) => `
+      <div class="card exam-q">
+        <div class="exam-q__head"><span class="exam-q__n">${qi + 1}</span><span class="muted">${q._u}</span></div>
+        <div class="quiz-question">${q.q}</div>
+        <div class="quiz-options">${q.opts.map((o, k) => `<button class="quiz-opt" data-qi="${qi}" data-k="${k}"><span class="opt-letter">${String.fromCharCode(65 + k)}</span><span>${o}</span></button>`).join("")}</div>
+      </div>`).join("");
+
+    const c = mount(`
+      <div class="exam-bar">
+        <div><h1 class="page-title" style="margin:0">${icon("trophy", "ic--title")} Simulacro de parcial</h1>
+        <p class="page-sub" style="margin:2px 0 0">${N} preguntas de todas las unidades · 12 minutos</p></div>
+        <div class="exam-timer" id="exTimer">12:00</div>
+      </div>
+      <div id="exForm">${qHtml}
+        <div class="card center">
+          <p class="muted" id="exCount">0 de ${N} respondidas</p>
+          <button class="btn btn--primary" id="exSubmit">Entregar examen</button>
+        </div></div>`);
+
+    const form = c.querySelector("#exForm");
+    form.addEventListener("click", (e) => {
+      const b = e.target.closest(".quiz-opt"); if (!b || submitted) return;
+      const qi = +b.dataset.qi, k = +b.dataset.k; answers[qi] = k;
+      form.querySelectorAll(`.quiz-opt[data-qi="${qi}"]`).forEach(x => x.classList.remove("sel"));
+      b.classList.add("sel");
+      c.querySelector("#exCount").textContent = `${answers.filter(a => a >= 0).length} de ${N} respondidas`;
+    });
+    c.querySelector("#exSubmit").addEventListener("click", finish);
+
+    examTimer = setInterval(() => {
+      remaining--;
+      const t = $("#exTimer");
+      if (t) {
+        const m = Math.floor(remaining / 60), s = remaining % 60;
+        t.textContent = `${m}:${String(s).padStart(2, "0")}`;
+        if (remaining <= 60) t.classList.add("danger");
+      }
+      if (remaining <= 0) finish();
+    }, 1000);
+
+    function finish() {
+      if (submitted) return; submitted = true;
+      if (examTimer) { clearInterval(examTimer); examTimer = null; }
+      let score = 0;
+      questions.forEach((q, qi) => { if (answers[qi] === q.a) score++; });
+      const pct = Math.round(score / N * 100);
+      const nota = Math.round(score / N * 100) / 10;       // sobre 10, un decimal
+      const notaStr = nota.toFixed(1).replace(".", ",");
+      const usados = DURATION - Math.max(0, remaining);
+      const mm = Math.floor(usados / 60), ss = usados % 60;
+      if (!progress.exam || score > progress.exam.best) { progress.exam = { best: score, total: N }; saveProgress(progress); }
+      const msg = pct >= 80 ? "¡Aprobado con holgura!" : pct >= 60 ? "Aprobado, repasá lo que falló." : "A reforzar: volvé a la teoría.";
+
+      const review = questions.map((q, qi) => {
+        const ok = answers[qi] === q.a, blank = answers[qi] < 0;
+        return `<div class="card exam-q ${ok ? "exam-q--ok" : "exam-q--no"}">
+          <div class="exam-q__head"><span class="exam-q__n">${qi + 1}</span>
+          <span class="muted">${q._u}</span>
+          <span style="margin-left:auto">${ok ? "✓ Correcta" : blank ? "— Sin responder" : "✗ Incorrecta"}</span></div>
+          <div class="quiz-question">${q.q}</div>
+          <div class="quiz-options">${q.opts.map((o, k) => {
+            let cls = ""; if (k === q.a) cls = "correct"; else if (k === answers[qi]) cls = "wrong";
+            return `<button class="quiz-opt ${cls}" disabled><span class="opt-letter">${String.fromCharCode(65 + k)}</span><span>${o}</span></button>`;
+          }).join("")}</div>
+          ${q.exp ? `<div class="quiz-feedback ${ok ? "ok" : "no"} show">${q.exp}</div>` : ""}</div>`;
+      }).join("");
+
+      mount(`
+        <h1 class="page-title">Resultado del simulacro</h1>
+        <div class="card center" style="margin-bottom:18px">
+          <div class="quiz-score-ring">${notaStr}</div>
+          <p class="lead">Nota: <strong>${notaStr}</strong> / 10 · ${score}/${N} correctas (${pct}%)</p>
+          <p class="muted">Tiempo usado: ${mm}:${String(ss).padStart(2, "0")} · ${msg}</p>
+          <div class="btn-row" style="justify-content:center">
+            <button class="btn btn--primary" id="exRetry">${icon("refresh")} Otro simulacro</button>
+            <a class="btn" href="#/quiz">Quizzes por unidad</a>
+            <a class="btn" href="#/">Inicio</a>
+          </div>
+        </div>
+        <h2>Revisión</h2>
+        ${review}`);
+      $("#exRetry").addEventListener("click", renderExam);
+      refreshProgressUI();
+    }
+  }
+
   /* ---------------- FLASHCARDS (mazos) ---------------- */
   function renderCardsMenu() {
     const items = DECKS.map(d => `
@@ -607,14 +774,7 @@
     mount(`
       <h1 class="page-title">${icon("cards", "ic--title")} Flashcards</h1>
       <p class="page-sub">Tocá la tarjeta para girarla. Ideal para repaso rápido antes del parcial.</p>
-      <div class="unit-grid">${items}</div>
-      <div class="callout tip">
-        <strong class="callout__tag">Versión imprimible</strong>
-        También están en papel:
-        <a href="Tarjetas-TP1-Introduccion-Redes.html" target="_blank">TP 1</a> ·
-        <a href="Tarjetas-TP2-Capa-Aplicacion.html" target="_blank">TP 2</a> ·
-        <a href="Tarjetas-Repaso-Teoria.html" target="_blank">Repaso</a>.
-      </div>`);
+      <div class="unit-grid">${items}</div>`);
   }
 
   function renderCards(id) {
@@ -674,7 +834,7 @@
     }).join("");
 
     const pts = pointsBreakdown(), mx = maxPoints();
-    const CATS = [["teoria", "Teoría leída"], ["quiz", "Autoevaluación"], ["labs", "Labs jugados"], ["simulador", "Simulador"], ["juego", "Protocolos por capa"], ["flashcards", "Flashcards"], ["practica", "Práctica"]];
+    const CATS = [["teoria", "Teoría leída"], ["quiz", "Autoevaluación"], ["labs", "Labs jugados"], ["simulador", "Simulador"], ["juego", "Protocolos por capa"], ["juegos", "Juegos"], ["flashcards", "Flashcards"], ["practica", "Práctica"]];
     const xpRows = CATS.map(([k, l]) => {
       const v = pts[k] || 0, m = mx[k] || 0, pct = m ? Math.round(v / m * 100) : 0;
       return `<div class="xp-row"><span class="xp-lbl">${l}</span><div class="progress-bar"><span style="width:${pct}%"></span></div><span class="xp-val">${v}</span></div>`;
@@ -702,7 +862,7 @@
       </div>`);
     $("#resetProg").addEventListener("click", () => {
       if (confirm("¿Seguro que querés borrar todo tu progreso?")) {
-        progress = { read: {}, quiz: {}, labs: {}, labSim: {}, build: {}, game: {}, cards: {}, practice: {} }; saveProgress(progress); router();
+        progress = { read: {}, quiz: {}, labs: {}, labSim: {}, build: {}, game: {}, games: {}, cards: {}, practice: {}, exam: null }; saveProgress(progress); router();
       }
     });
   }
@@ -722,6 +882,9 @@
     });
     PRACTICE.forEach(t => idx.push({ title: t.title, sub: "Práctica", href: `#/practica/${t.id}`, hay: (t.title + " " + t.desc).toLowerCase() }));
     DECKS.forEach(d => idx.push({ title: d.short || d.title, sub: "Flashcards", href: `#/cards/${d.id}`, hay: (d.short + " " + d.title).toLowerCase() }));
+    GAMES.forEach(([id, t, d]) => idx.push({ title: t, sub: "Juego", href: `#/games/${id}`, hay: (t + " " + d).toLowerCase() }));
+    idx.push({ title: "Juegos", sub: "Práctica", href: "#/games", hay: "juegos jugar minijuegos" });
+    idx.push({ title: "Simulacro de parcial", sub: "Práctica", href: "#/exam", hay: "simulacro parcial examen cronometrado nota" });
     idx.push({ title: "Autoevaluación", sub: "Práctica", href: "#/quiz", hay: "quiz autoevaluacion examen" });
     return idx;
   }

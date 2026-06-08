@@ -3,12 +3,11 @@
    - HTML / CSS / JS: "network-first" (siempre intenta lo último; offline → copia guardada).
    - Íconos / manifest: "cache-first" (carga instantánea).
    Al cambiar el contenido, subí el número de versión (CACHE) para forzar el refresco. */
-const CACHE = "redes-v10";
+const CACHE = "redes-v13";
 const ASSETS = [
   "./", "./index.html",
   "./css/styles.css",
-  "./js/data.js", "./js/decks.js", "./js/practice.js", "./js/labs.js", "./js/lab-sim.js", "./js/net-sim.js", "./js/tools.js", "./js/app.js",
-  "./Tarjetas-TP1-Introduccion-Redes.html", "./Tarjetas-TP2-Capa-Aplicacion.html", "./Tarjetas-Repaso-Teoria.html",
+  "./js/data.js", "./js/decks.js", "./js/practice.js", "./js/labs.js", "./js/lab-sim.js", "./js/net-sim.js", "./js/tools.js", "./js/games.js", "./js/app.js",
   "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-180.png"
 ];
 

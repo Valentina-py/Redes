@@ -365,6 +365,313 @@ const DECKS = {
     ]
   },
 
+  /* ====================== CAPA DE TRANSPORTE ====================== */
+  transporte: {
+    id: "transporte",
+    title: "Capa de Transporte",
+    short: "Transporte",
+    color: "#4a2a7a",
+    color2: "#6d4ca8",
+    cards: [
+      { tag: "Transporte · 1",
+        q: "¿Qué hace la capa de transporte y cuál es su PDU?",
+        a: `Da <strong>comunicación lógica proceso a proceso</strong>: conecta las aplicaciones de dos hosts como si estuvieran enlazadas directamente. Es la <strong>capa 4</strong> y su PDU es el <strong>segmento</strong>. La capa de red conecta <em>hosts</em>; la de transporte conecta <em>procesos</em>.` },
+      { tag: "Transporte · 2",
+        q: "¿Qué son la multiplexación y la demultiplexación? ¿Qué rango tienen los puertos?",
+        a: `<strong>Multiplexación</strong> (emisor): junta datos de varios sockets y les agrega una cabecera con el número de puerto.<br>
+        <strong>Demultiplexación</strong> (receptor): usa los puertos para entregar cada segmento al socket correcto.<br>
+        Los puertos son de <strong>16 bits → 0 a 65535</strong>.` },
+      { tag: "Transporte · 3",
+        q: "¿Qué identifica a un socket UDP y a uno TCP?",
+        a: `<strong>Socket UDP:</strong> una <strong>tupla de 2</strong> → (IP destino, puerto destino).<br>
+        <strong>Socket TCP:</strong> una <strong>tupla de 4</strong> → IP origen, puerto origen, IP destino, puerto destino. Por eso un servidor TCP atiende muchos clientes a la vez.` },
+      { tag: "Transporte · 4",
+        q: "Características de UDP, su cabecera y usos típicos.",
+        a: `<strong>UDP</strong> es <em>sin conexión</em> y <em>best effort</em> (puede perder o desordenar). Cabecera mínima de <strong>8 bytes</strong> (puerto origen, puerto destino, longitud, checksum) y <em>sin control de congestión</em>.<br>
+        <strong>Usos:</strong> DNS, streaming de audio/video, juegos en línea, VoIP, TFTP.` },
+      { tag: "Transporte · 5",
+        q: "Características de TCP.",
+        a: `<ul>
+          <li><strong>Orientado a conexión</strong> (3-way handshake).</li>
+          <li><strong>Fiable y en orden</strong> (ACK, retransmisión, nº de secuencia).</li>
+          <li><strong>Full-duplex</strong> y <strong>punto a punto</strong>.</li>
+          <li>Con <strong>control de flujo</strong> y <strong>de congestión</strong>. Cabecera ~20 bytes.</li>
+        </ul>` },
+      { tag: "Transporte · 6",
+        q: "En TCP, ¿qué cuenta el número de secuencia y qué indica el ACK?",
+        a: `El <strong>número de secuencia</strong> cuenta <em>bytes</em> (es el nº del primer byte del segmento dentro del flujo).<br>
+        El <strong>número de ACK</strong> indica el <strong>siguiente byte esperado</strong> y es <strong>acumulativo</strong> (confirma todo lo anterior).` },
+      { tag: "Transporte · 7",
+        q: "¿En qué consiste el saludo en 3 pasos (3-way handshake)?",
+        a: `<div class="formula">1) Cliente → SYN (nº de secuencia inicial)
+2) Servidor → SYN-ACK (reconoce y manda su nº inicial)
+3) Cliente → ACK (ya puede llevar datos)</div>
+        El cierre usa segmentos <strong>FIN</strong> + <strong>ACK</strong> en ambos sentidos.` },
+      { tag: "Transporte · 8",
+        q: "¿Qué mecanismos usa TCP para la transferencia fiable? ¿Qué dispara una retransmisión?",
+        a: `Combina <strong>números de secuencia</strong>, <strong>ACK</strong>, <strong>temporizadores + retransmisión</strong> y <strong>checksum</strong> sobre el IP no fiable.<br>
+        Retransmite por <strong>timeout</strong> o por <strong>3 ACK duplicados</strong> (retransmisión rápida, sin esperar al temporizador).` },
+      { tag: "Transporte · 9",
+        q: "Protocolos ARQ: parada y espera, ventana deslizante, Go-Back-N y repetición selectiva.",
+        a: `<ul>
+          <li><strong>Parada y espera:</strong> envía 1 trama y espera su ACK. Simple pero lento.</li>
+          <li><strong>Ventana deslizante:</strong> envía varias tramas sin esperar ACK de cada una.</li>
+          <li><strong>Go-Back-N:</strong> ante una pérdida retransmite ese paquete y todos los siguientes (receptor sin buffer).</li>
+          <li><strong>Repetición selectiva:</strong> retransmite solo el paquete con error (receptor con buffer).</li>
+        </ul>` },
+      { tag: "Transporte · 10",
+        q: "Diferencia entre control de flujo y control de congestión.",
+        a: `<strong>Control de flujo:</strong> evita saturar al <em>receptor</em>; el receptor anuncia el espacio libre de su buffer en <strong>RcvWindow</strong>.<br>
+        <strong>Control de congestión:</strong> evita saturar la <em>red</em>; el emisor ajusta <strong>cwnd</strong> con <strong>AIMD</strong> (+1 MSS por RTT, ÷2 al perder) y arranca con <em>slow start</em> (cwnd = 1 MSS, se duplica cada RTT).` },
+      { tag: "Transporte · 11",
+        q: "TCP vs UDP: resumen.",
+        a: `<table class="layers">
+          <tr><td class="cap">TCP</td><td>Con conexión · fiable y en orden · cabecera ~20 B · control de flujo y congestión · web, correo, FTP.</td></tr>
+          <tr><td class="cap">UDP</td><td>Sin conexión · best effort · cabecera 8 B · sin control · DNS, streaming, juegos, VoIP.</td></tr>
+        </table>` }
+    ]
+  },
+
+  /* ================== CAPA DE RED Y DIRECCIONAMIENTO IP ================== */
+  red: {
+    id: "red",
+    title: "Capa de Red y Direccionamiento IP",
+    short: "Red e IP",
+    color: "#1a5b6b",
+    color2: "#2e8b9c",
+    cards: [
+      { tag: "Red · 1",
+        q: "¿Qué hace la capa de red y cuál es su PDU?",
+        a: `Lleva los datos del host origen al host destino <strong>atravesando muchas redes</strong>. Su PDU es el <strong>paquete</strong> (o <strong>datagrama</strong> IP). Se llama "Internet" en el modelo TCP/IP y "Red" (capa 3) en OSI.` },
+      { tag: "Red · 2",
+        q: "Diferencia entre reenvío (forwarding) y enrutamiento (routing).",
+        a: `<strong>Reenvío:</strong> acción <em>local</em> de un router: mover el paquete de la interfaz de entrada a la de salida.<br>
+        <strong>Enrutamiento:</strong> proceso de <em>extremo a extremo</em>: calcular la ruta completa. El algoritmo de enrutamiento llena la <strong>tabla de reenvío</strong>.` },
+      { tag: "Red · 3",
+        q: "¿Qué tipo de servicio da IP? ¿Qué hace el campo TTL?",
+        a: `IP es <strong>no orientado a conexión</strong> y <strong>best effort</strong> (no garantiza entrega ni orden).<br>
+        El <strong>TTL</strong> es el máximo de routers que puede atravesar: se <strong>resta 1 en cada router</strong> y si llega a <strong>0 el paquete se descarta</strong> (evita bucles infinitos).` },
+      { tag: "Red · 4",
+        q: "¿Qué es la MTU y la fragmentación?",
+        a: `La <strong>MTU</strong> (Maximum Transmission Unit) es el tamaño máximo de trama de un enlace. Si un datagrama la supera, se <strong>fragmenta</strong> en partes más chicas; el <strong>reensamblado se hace solo en el host destino</strong>.` },
+      { tag: "Red · 5",
+        q: "Estructura de una dirección IPv4.",
+        a: `<strong>32 bits = 4 octetos</strong> (4 grupos de 8 bits), en <strong>notación decimal punteada</strong>; cada octeto va de <strong>0 a 255</strong>.<div class="formula">192.168.1.23 = 11000000.10101000.00000001.00010111</div>
+        Se divide en <strong>parte de red</strong> y <strong>parte de host</strong>.` },
+      { tag: "Red · 6",
+        q: "Clases A, B y C: rango del 1.er octeto, máscara por defecto y hosts.",
+        a: `<table class="layers">
+          <tr><td class="cap">A</td><td>0–127 · 255.0.0.0 (/8) · 16.777.214 hosts</td></tr>
+          <tr><td class="cap">B</td><td>128–191 · 255.255.0.0 (/16) · 65.534 hosts</td></tr>
+          <tr><td class="cap">C</td><td>192–223 · 255.255.255.0 (/24) · 254 hosts</td></tr>
+        </table>
+        (D = multicast 224–239, E = reservada 240–255.)` },
+      { tag: "Red · 7",
+        q: "Dirección de red vs dirección de broadcast. ¿Por qué se restan 2 hosts?",
+        a: `<strong>Dirección de red:</strong> bits de host todos en <strong>0</strong> (la primera de la subred).<br>
+        <strong>Broadcast:</strong> bits de host todos en <strong>1</strong> (la última).<br>
+        Ninguna se asigna a equipos; por eso los hosts útiles son <strong>2<sup>h</sup> − 2</strong>.` },
+      { tag: "Red · 8",
+        q: "Direcciones especiales y rangos privados.",
+        a: `<strong>Loopback:</strong> 127.0.0.1 (la propia máquina).<br>
+        <strong>Privadas</strong> (no salen a Internet):
+        <ul>
+          <li>10.0.0.0 – 10.255.255.255</li>
+          <li>172.16.0.0 – 172.31.255.255</li>
+          <li>192.168.0.0 – 192.168.255.255</li>
+        </ul>` },
+      { tag: "Red · 9",
+        q: "¿Qué es la máscara de subred y la notación CIDR?",
+        a: `La <strong>máscara</strong> marca con <strong>1</strong> los bits de red y con <strong>0</strong> los de host.<br>
+        En <strong>CIDR</strong> se escribe <em>a.b.c.d/x</em>, donde <strong>x</strong> = cantidad de bits de red (el prefijo). Ej.: /24 = 255.255.255.0.` },
+      { tag: "Red · 10",
+        q: "Fórmulas de subnetting y ejemplo: dividir una Clase C en 4 subredes.",
+        a: `<strong>Subredes = 2<sup>n</sup></strong> (n bits prestados) · <strong>hosts útiles = 2<sup>h</sup> − 2</strong>.<br>
+        Para 4 subredes se prestan 2 bits (2² = 4):
+        <div class="formula">Máscara 255.255.255.192 (/26) · 62 hosts c/u · saltos de 64
+.0 / .64 / .128 / .192</div>` },
+      { tag: "Red · 11",
+        q: "Una PC tiene 192.168.10.130/26. ¿A qué subred pertenece (red, rango, broadcast)?",
+        a: `/26 → bloques de 64 (.0, .64, .128, .192). Como 128 ≤ 130 &lt; 192:
+        <div class="formula">Red = 192.168.10.128
+Hosts = .129 a .190
+Broadcast = 192.168.10.191</div>` },
+      { tag: "Red · 12",
+        q: "¿Qué hacen ICMP, NAT y DHCP?",
+        a: `<strong>ICMP:</strong> diagnóstico y errores; <em>ping</em> (eco) y <em>traceroute</em> (TTL creciente).<br>
+        <strong>NAT/PAT:</strong> traduce muchas IP privadas a una sola IP pública del router (ahorra IPv4 y da seguridad).<br>
+        <strong>DHCP:</strong> asigna la IP automáticamente (discover → offer → request → ACK) y entrega gateway, DNS y máscara.` },
+      { tag: "Red · 13",
+        q: "Protocolos de enrutamiento: RIP, OSPF y BGP.",
+        a: `<table class="layers">
+          <tr><td class="cap">RIP</td><td>Vector de distancias · métrica = nº de saltos (máx. 15).</td></tr>
+          <tr><td class="cap">OSPF</td><td>Estado de enlace (Dijkstra) · coste configurable.</td></tr>
+          <tr><td class="cap">BGP</td><td>Vector de ruta · enruta entre Sistemas Autónomos (políticas).</td></tr>
+        </table>
+        El <strong>default gateway</strong> es el router de primer salto cuando no hay ruta más específica.` },
+      { tag: "Red · 14",
+        q: "¿Por qué existe IPv6 y cómo es su dirección?",
+        a: `Porque las direcciones IPv4 (32 bits, ~4.300 millones) se agotaron. <strong>IPv6 usa 128 bits</strong>, en 8 grupos hexadecimales. Se abrevia omitiendo ceros a la izquierda y usando <strong>::</strong> una sola vez. En IPv6 no hay broadcast (lo reemplaza multicast).` }
+    ]
+  },
+
+  /* ===================== CAPA DE ENLACE DE DATOS ===================== */
+  enlace: {
+    id: "enlace",
+    title: "Capa de Enlace de Datos",
+    short: "Enlace",
+    color: "#6b4a1a",
+    color2: "#9c7a2e",
+    cards: [
+      { tag: "Enlace · 1",
+        q: "¿Qué hace la capa de enlace y cuál es su PDU?",
+        a: `Transfiere datos entre <strong>nodos vecinos</strong> (un salto, sobre un mismo enlace). Su PDU es la <strong>trama</strong>.<br>
+        Servicios: entramado, acceso al medio (MAC), detección de errores y, opcionalmente, entrega fiable y control de flujo. Se implementa en la <strong>placa de red (NIC)</strong>.` },
+      { tag: "Enlace · 2",
+        q: "Dirección MAC vs dirección IP.",
+        a: `<table class="layers">
+          <tr><td class="cap">MAC</td><td>física · 48 bits (hex) · plana · grabada en la NIC · alcance <em>local</em> (un salto)</td></tr>
+          <tr><td class="cap">IP</td><td>lógica · 32 bits · jerárquica · alcance <em>extremo a extremo</em></td></tr>
+        </table>
+        ARP traduce IP → MAC.` },
+      { tag: "Enlace · 3",
+        q: "¿Qué es ARP y cómo funciona?",
+        a: `<strong>ARP</strong> traduce una IP a su MAC dentro de la misma LAN.<br>
+        El host manda una <strong>solicitud en broadcast</strong> ("¿quién tiene la IP X?"), el dueño responde en <strong>unicast</strong> con su MAC y se guarda en la <strong>tabla ARP</strong>. Si el destino está en otra red, se resuelve la MAC del <strong>gateway</strong>.` },
+      { tag: "Enlace · 4",
+        q: "Las tres familias de protocolos de acceso al medio (MAC).",
+        a: `<ul>
+          <li><strong>Partición del canal:</strong> TDM (tiempo), FDM (frecuencia).</li>
+          <li><strong>Acceso aleatorio:</strong> CSMA/CD (Ethernet), CSMA/CA (Wi-Fi).</li>
+          <li><strong>Por turnos:</strong> paso de testigo (Token Ring).</li>
+        </ul>` },
+      { tag: "Enlace · 5",
+        q: "¿Qué es CSMA/CD?",
+        a: `El método de acceso de Ethernet en medio compartido: el nodo <strong>escucha</strong> el canal antes de transmitir (carrier sense); si detecta una <strong>colisión</strong> mientras envía, aborta y reintenta tras un tiempo aleatorio (backoff exponencial). Wi-Fi usa <strong>CSMA/CA</strong> (evita la colisión).` },
+      { tag: "Enlace · 6",
+        q: "Formato de la trama Ethernet.",
+        a: `<div class="formula">Preámbulo · MAC destino · MAC origen · Tipo · Datos · CRC</div>
+        El <strong>tipo</strong> indica el protocolo superior (IP); el <strong>CRC</strong> detecta errores (si falla, se descarta). Ethernet es <strong>sin conexión y no fiable</strong> (sin ACK).` },
+      { tag: "Enlace · 7",
+        q: "Hub vs switch vs router.",
+        a: `<table class="layers">
+          <tr><td class="cap">Hub</td><td>capa física · repite los bits a todos los puertos</td></tr>
+          <tr><td class="cap">Switch</td><td>capa enlace · reenvía por <strong>MAC</strong> (autoaprende, full-duplex, sin colisiones)</td></tr>
+          <tr><td class="cap">Router</td><td>capa red · reenvía por <strong>IP</strong> y elige rutas entre redes</td></tr>
+        </table>` },
+      { tag: "Enlace · 8",
+        q: "¿Cómo arma un switch su tabla de conmutación?",
+        a: `Por <strong>autoaprendizaje</strong>: observa la dirección <strong>MAC de origen</strong> de las tramas que llegan y anota en qué puerto está cada MAC. Luego, si conoce el puerto del destino, reenvía solo por ahí; si no lo conoce, difunde por todos menos el de entrada.` }
+    ]
+  },
+
+  /* ================ MODELO DE CAPAS Y ENCAPSULAMIENTO ================ */
+  capas: {
+    id: "capas",
+    title: "Modelo de Capas y Encapsulamiento",
+    short: "Capas",
+    color: "#1a6b4a",
+    color2: "#2e9c6e",
+    cards: [
+      { tag: "Capas · 1",
+        q: "Las 5 capas de la pila de Internet y su función.",
+        a: `<ul>
+          <li><strong>Aplicación:</strong> programas del usuario (web, correo).</li>
+          <li><strong>Transporte:</strong> comunicación proceso a proceso (puertos); fiabilidad y control de flujo/congestión.</li>
+          <li><strong>Red:</strong> direccionamiento lógico (IP) y enrutamiento entre redes.</li>
+          <li><strong>Enlace:</strong> transferencia entre nodos vecinos (MAC, errores).</li>
+          <li><strong>Física:</strong> transmite los bits por el medio.</li>
+        </ul>` },
+      { tag: "Capas · 2",
+        q: "¿Cuál es la PDU (unidad de datos) de cada capa?",
+        a: `<div class="formula">Mensaje → Segmento → Datagrama → Trama → Bits</div>
+        Aplicación = <strong>mensaje</strong>, transporte = <strong>segmento</strong>, red = <strong>datagrama/paquete</strong>, enlace = <strong>trama</strong>, física = <strong>bits</strong>.` },
+      { tag: "Capas · 3",
+        q: "¿Qué es el encapsulamiento?",
+        a: `Al <em>descender</em> por las capas, cada una <strong>agrega su propia cabecera</strong>: Mensaje → +transporte = Segmento → +red = Datagrama → +enlace = Trama → Bits.<br>
+        En el receptor se hace al revés (<strong>desencapsulamiento</strong>): cada capa quita su cabecera.` },
+      { tag: "Capas · 4",
+        q: "¿Qué capas procesa cada dispositivo?",
+        a: `<ul>
+          <li><strong>Host</strong> (PC, servidor): las 5.</li>
+          <li><strong>Router:</strong> red, enlace y física.</li>
+          <li><strong>Switch</strong> de enlace: enlace y física.</li>
+          <li><strong>Hub / repetidor:</strong> solo física.</li>
+        </ul>` },
+      { tag: "Capas · 5",
+        q: "Clasificá por capa: HTTP, TCP, UDP, IP, ICMP, Ethernet, ARP, DNS, RIP.",
+        a: `<table class="layers">
+          <tr><td class="cap">Aplicación</td><td>HTTP, DNS, RIP (sobre UDP)</td></tr>
+          <tr><td class="cap">Transporte</td><td>TCP, UDP</td></tr>
+          <tr><td class="cap">Red</td><td>IP, ICMP</td></tr>
+          <tr><td class="cap">Enlace</td><td>Ethernet, ARP</td></tr>
+        </table>` },
+      { tag: "Capas · 6",
+        q: "¿Cuántas capas tienen TCP/IP, el modelo de estudio y OSI?",
+        a: `<strong>TCP/IP "puro": 4</strong> (junta enlace y física en "acceso a la red").<br>
+        <strong>Modelo de estudio (Kurose): 5.</strong><br>
+        <strong>OSI: 7</strong> (agrega Sesión y Presentación).` },
+      { tag: "Capas · 7",
+        q: "Ventajas y desventaja de organizar la red en capas.",
+        a: `<strong>Ventajas:</strong> simplifica el diseño, modularidad (cambiar una capa sin tocar las demás) y estandarización.<br>
+        <strong>Desventaja:</strong> funciones duplicadas entre capas y sobrecarga por las cabeceras.` },
+      { tag: "Capas · 8",
+        q: "Las dos funciones principales de un router.",
+        a: `<strong>Reenvío (forwarding):</strong> acción local — mira la IP destino y manda el paquete por el enlace de salida según su tabla.<br>
+        <strong>Enrutamiento (routing):</strong> determina el camino completo origen→destino y arma las tablas (p. ej. con RIP).` },
+      { tag: "Capas · 9",
+        q: "¿Qué tipo de dirección usa cada capa para direccionar?",
+        a: `<strong>Transporte:</strong> número de <strong>puerto</strong> (proceso). <strong>Red:</strong> dirección <strong>IP</strong> (host/red). <strong>Enlace:</strong> dirección <strong>MAC</strong> (nodo vecino).` },
+      { tag: "Capas · 10",
+        q: "¿En qué capa opera SSL/TLS?",
+        a: `En la <strong>capa de aplicación</strong>: el desarrollador incorpora la biblioteca SSL y cifra los datos antes de entregarlos a TCP.` }
+    ]
+  },
+
+  /* ========================= SEGURIDAD ========================= */
+  seguridad: {
+    id: "seguridad",
+    title: "Seguridad en Redes",
+    short: "Seguridad",
+    color: "#7a1a2a",
+    color2: "#a83a4a",
+    cards: [
+      { tag: "Seguridad · 1",
+        q: "Diferencia entre virus, gusano y troyano.",
+        a: `<strong>Virus:</strong> se adjunta a archivos/programas y se propaga al <em>ejecutarlos</em>.<br>
+        <strong>Gusano:</strong> se propaga <em>solo</em> por la red, sin intervención del usuario, aprovechando vulnerabilidades.<br>
+        <strong>Troyano:</strong> parece legítimo pero oculta código malicioso que se ejecuta al instalarlo.` },
+      { tag: "Seguridad · 2",
+        q: "¿Qué es una botnet y cómo se usa en un DDoS?",
+        a: `Una <strong>botnet</strong> es una red de equipos infectados con malware, controlados remotamente por el atacante sin que el usuario lo sepa.<br>
+        En un <strong>DDoS</strong> se usa esa botnet para enviar tráfico masivo a un servidor al mismo tiempo, saturándolo.` },
+      { tag: "Seguridad · 3",
+        q: "Diferencia entre DoS y DDoS.",
+        a: `<strong>DoS</strong> (denegación de servicio): saturar los recursos de un servidor desde un solo origen.<br>
+        <strong>DDoS</strong> (distribuida): el mismo ataque pero desde <strong>muchos orígenes a la vez</strong> (una botnet), mucho más difícil de frenar.` },
+      { tag: "Seguridad · 4",
+        q: "¿Qué es el packet sniffing?",
+        a: `Un dispositivo en un medio compartido (Ethernet, Wi-Fi) pone su interfaz en <strong>modo promiscuo</strong> y "escucha" y copia todos los paquetes que pasan, incluso contraseñas no cifradas. Software de ejemplo: <strong>Wireshark</strong>.` },
+      { tag: "Seguridad · 5",
+        q: "¿Qué es el IP spoofing?",
+        a: `Enviar paquetes con una <strong>dirección de origen falsa</strong> para suplantar a otro host o esconder al atacante.` },
+      { tag: "Seguridad · 6",
+        q: "Ataque man-in-the-middle: ¿qué daños puede causar?",
+        a: `El atacante se ubica <em>en el medio</em> de dos partes e intercepta/reenvía los paquetes. Puede: interceptar datos, modificar mensajes, suplantar identidad, insertar información falsa, repetir mensajes (replay) o interrumpir la comunicación.` },
+      { tag: "Seguridad · 7",
+        q: "Defensas básicas en una red.",
+        a: `<ul>
+          <li><strong>Cifrado</strong> (SSL/TLS, HTTPS, WPA2) para confidencialidad e integridad.</li>
+          <li><strong>Autenticación</strong> de los extremos.</li>
+          <li><strong>Firewalls</strong> y filtrado de tráfico; detección de intrusiones.</li>
+          <li>En el router hogareño: cambiar la contraseña por defecto y activar el cifrado Wi-Fi.</li>
+        </ul>` },
+      { tag: "Seguridad · 8",
+        q: "¿Por qué Internet es insegura \"por diseño\"?",
+        a: `Porque se diseñó pensando en un grupo de usuarios <em>mutuamente confiables</em>, sin contemplar la seguridad. Hoy las consideraciones de seguridad se agregan en todas las capas (cifrado, autenticación, firewalls).` }
+    ]
+  },
+
   /* ========================== REPASO ========================== */
   repaso: {
     id: "repaso",

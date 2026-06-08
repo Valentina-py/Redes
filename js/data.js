@@ -567,6 +567,136 @@ window.APP_DATA.units = [
 },
 
 /* ===================================================================
+   UNIDAD 5 — CAPA DE ENLACE DE DATOS
+   =================================================================== */
+{
+  id: "enlace",
+  glyph: "⇆",
+  icon: "link",
+  title: "Capa de Enlace de Datos",
+  desc: "Tramas, direcciones MAC, ARP, acceso al medio (CSMA/CD), Ethernet y switches.",
+  html: `
+    <p class="lead">La <strong>capa de enlace</strong> (capa 2) transfiere datos entre <strong>nodos vecinos</strong> (directamente conectados por un enlace): host↔switch, switch↔router, etc. Su PDU es la <strong>trama</strong> (frame).</p>
+
+    <div class="callout def">
+      <strong class="callout__tag">Nodo a nodo</strong>
+      La capa de red lleva el datagrama de <em>extremo a extremo</em>; la de enlace lo mueve <em>un salto a la vez</em>, encapsulándolo en una trama distinta en cada enlace del camino.
+    </div>
+
+    <h2>Servicios de la capa de enlace</h2>
+    <ul>
+      <li><strong>Entramado (framing):</strong> encapsula el datagrama agregando cabecera y cola → forma la <strong>trama</strong>.</li>
+      <li><strong>Acceso al medio (MAC):</strong> reglas para usar un medio compartido sin pisarse.</li>
+      <li><strong>Entrega entre nodos vecinos</strong> y, opcionalmente, <strong>entrega fiable</strong> (poco usada en enlaces de baja tasa de error).</li>
+      <li><strong>Detección y corrección de errores</strong> (bits dañados por ruido en el medio).</li>
+      <li><strong>Control de flujo</strong> entre nodos adyacentes.</li>
+    </ul>
+    <p>Se implementa en la <strong>placa de red (NIC)</strong> / adaptador: combina hardware, software y firmware. La emisora arma la trama y le agrega control de errores; la receptora la verifica y extrae el datagrama.</p>
+
+    <h2>Direcciones MAC</h2>
+    <p>Cada interfaz de red tiene una <strong>dirección MAC</strong> (física) de <strong>48 bits</strong>, escrita en hexadecimal (ej. <span class="cmd">1A:2B:3C:4D:5E:6F</span>). Viene "grabada" en la NIC por el fabricante y es <strong>plana</strong> (no jerárquica).</p>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th></th><th>Dirección IP</th><th>Dirección MAC</th></tr></thead>
+      <tbody>
+        <tr><td>Capa</td><td>Red (3)</td><td>Enlace (2)</td></tr>
+        <tr><td>Alcance</td><td>extremo a extremo (toda la ruta)</td><td>solo el enlace local (un salto)</td></tr>
+        <tr><td>Tipo</td><td>lógica, jerárquica, cambia de red</td><td>física, plana, fija</td></tr>
+        <tr><td>Tamaño</td><td>32 bits (IPv4)</td><td>48 bits</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>La dirección MAC de <strong>broadcast</strong> es <span class="cmd">FF:FF:FF:FF:FF:FF</span> (todos los bits en 1).</p>
+
+    <h2>ARP — de IP a MAC</h2>
+    <div class="callout">
+      <strong class="callout__tag">Address Resolution Protocol</strong>
+      <strong>ARP</strong> traduce una dirección <strong>IP</strong> (capa 3) a su dirección <strong>MAC</strong> (capa 2) dentro de la misma LAN.
+    </div>
+    <p>Cuando un host conoce la IP de destino pero no su MAC: envía una <strong>solicitud ARP en broadcast</strong> ("¿quién tiene la IP X?"); el dueño responde con un <strong>ARP reply en unicast</strong> con su MAC. El resultado se guarda en la <strong>tabla ARP</strong> (caché temporal). Si el destino está en otra red, se resuelve la MAC del <strong>router (gateway)</strong>, no la del destino final.</p>
+
+    <h2>Acceso al medio (protocolos MAC)</h2>
+    <p>En un medio <em>compartido</em>, si dos nodos transmiten a la vez hay <strong>colisión</strong>. Hay tres familias de protocolos:</p>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Familia</th><th>Idea</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Partición del canal</strong></td><td>repartir el canal en porciones fijas</td><td>TDM (tiempo), FDM (frecuencia)</td></tr>
+        <tr><td><strong>Acceso aleatorio</strong></td><td>transmitir y resolver colisiones</td><td><strong>CSMA/CD</strong> (Ethernet), <strong>CSMA/CA</strong> (Wi-Fi)</td></tr>
+        <tr><td><strong>Por turnos</strong></td><td>tomar turnos ordenados</td><td>paso de testigo (Token Ring)</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p><strong>CSMA/CD</strong> (Carrier Sense Multiple Access / Collision Detection): el nodo <em>escucha</em> el canal antes de transmitir (carrier sense); si detecta una colisión mientras envía, <strong>aborta</strong> y reintenta tras un tiempo aleatorio (backoff exponencial). Es el método clásico de Ethernet sobre medio compartido. En Wi-Fi se usa <strong>CSMA/CA</strong> (evita la colisión, porque no puede detectarla bien en el aire).</p>
+
+    <h2>Ethernet</h2>
+    <p>Es la tecnología LAN dominante. Formato de la <strong>trama Ethernet</strong>:</p>
+    <div class="formula-box">Preámbulo · MAC destino · MAC origen · Tipo · Datos (payload) · CRC</div>
+    <ul>
+      <li><strong>Preámbulo:</strong> sincroniza a emisor y receptor.</li>
+      <li><strong>MAC destino / origen:</strong> 48 bits cada una.</li>
+      <li><strong>Tipo:</strong> indica el protocolo de capa superior (p. ej. IP).</li>
+      <li><strong>CRC</strong> (comprobación de redundancia cíclica): detecta errores; si falla, la trama se descarta.</li>
+    </ul>
+    <p>Ethernet ofrece un servicio <strong>sin conexión y no fiable</strong> (no hay ACK): la fiabilidad, si hace falta, la dan las capas superiores (TCP).</p>
+
+    <h2>Switches (conmutadores)</h2>
+    <p>Un <strong>switch</strong> opera en capa 2: reenvía tramas según la <strong>dirección MAC de destino</strong>. Es <strong>"transparente"</strong> (los hosts no saben que está). Características:</p>
+    <ul>
+      <li><strong>Autoaprendizaje:</strong> arma su <strong>tabla de conmutación</strong> (MAC → puerto) observando la MAC de <em>origen</em> de las tramas que llegan.</li>
+      <li><strong>Filtrado y reenvío:</strong> si conoce el puerto del destino, manda la trama solo por ahí; si no, la difunde por todos (flooding) menos por el de entrada.</li>
+      <li>Cada puerto es su propio <strong>dominio de colisión</strong> y trabaja en <strong>full-duplex</strong> → no hay colisiones (a diferencia del hub).</li>
+    </ul>
+    <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Dispositivo</th><th>Capa</th><th>Reenvía según</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Hub / repetidor</strong></td><td>Física (1)</td><td>nada: repite los bits a todos los puertos</td></tr>
+        <tr><td><strong>Switch</strong></td><td>Enlace (2)</td><td>dirección <strong>MAC</strong></td></tr>
+        <tr><td><strong>Router</strong></td><td>Red (3)</td><td>dirección <strong>IP</strong></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="callout warn">
+      <strong class="callout__tag">No confundir switch y router</strong>
+      El <strong>switch</strong> conecta equipos <em>dentro</em> de una LAN usando MAC; el <strong>router</strong> conecta <em>redes distintas</em> usando IP y elige rutas.
+    </div>
+
+    <h2>Detección de errores</h2>
+    <p>Para descubrir bits dañados en el medio, la capa de enlace agrega bits de control (EDC):</p>
+    <ul>
+      <li><strong>Bit de paridad:</strong> 1 bit que hace par (o impar) la cantidad de unos. Detecta errores de 1 bit.</li>
+      <li><strong>Checksum:</strong> suma de bloques (como en TCP/UDP).</li>
+      <li><strong>CRC</strong> (redundancia cíclica): el más robusto; el que usa Ethernet.</li>
+    </ul>`,
+  quiz: [
+    { q: "¿Cuál es la PDU (unidad de datos) de la <strong>capa de enlace</strong>?", opts: ["Datagrama", "Segmento", "Trama", "Paquete"], a: 2,
+      exp: "Enlace = trama (frame). Red = datagrama/paquete, transporte = segmento." },
+    { q: "¿Cuántos bits tiene una <strong>dirección MAC</strong>?", opts: ["32", "48", "16", "128"], a: 1,
+      exp: "La MAC es de 48 bits (en hexadecimal); la IPv4 es de 32 bits." },
+    { q: "¿Qué hace el protocolo <strong>ARP</strong>?", opts: ["Traduce nombres a IP", "Traduce una IP a su dirección MAC", "Enruta entre redes", "Asigna IP automáticamente"], a: 1,
+      exp: "ARP resuelve IP → MAC dentro de la LAN. Nombres→IP es DNS; asignar IP es DHCP." },
+    { q: "¿Qué técnica de acceso al medio usa <strong>Ethernet</strong> en medio compartido?", opts: ["CSMA/CA", "Paso de testigo", "CSMA/CD", "TDM"], a: 2,
+      exp: "Ethernet usa CSMA/CD (escucha y detecta colisiones). Wi-Fi usa CSMA/CA." },
+    { q: "Un <strong>switch</strong> reenvía las tramas según…", opts: ["la dirección IP de destino", "la dirección MAC de destino", "el número de puerto", "el nombre de dominio"], a: 1,
+      exp: "El switch opera en capa 2 y usa la MAC de destino; el router usa la IP." },
+    { q: "¿Cómo arma el switch su tabla de conmutación?", opts: ["Se la configura el administrador", "Observando la MAC de origen de las tramas que llegan", "Preguntando por DNS", "Con ARP"], a: 1,
+      exp: "Autoaprendizaje: aprende qué MAC está en cada puerto mirando la MAC de origen." },
+    { q: "La dirección MAC de <strong>broadcast</strong> es…", opts: ["00:00:00:00:00:00", "FF:FF:FF:FF:FF:FF", "127.0.0.1", "255.255.255.255"], a: 1,
+      exp: "Todos los bits en 1: FF:FF:FF:FF:FF:FF. (255.255.255.255 sería broadcast de IP.)" },
+    { q: "¿En qué capa trabaja un <strong>hub</strong>?", opts: ["Física", "Enlace", "Red", "Transporte"], a: 0,
+      exp: "El hub es capa física: solo repite los bits a todos los puertos (un único dominio de colisión)." }
+  ],
+  cards: [
+    { q: "¿Qué hace la capa de enlace y cuál es su PDU?", a: "Transfiere datos entre <strong>nodos vecinos</strong> (un salto, sobre un mismo enlace). Su PDU es la <strong>trama</strong>. Servicios: entramado, acceso al medio (MAC), detección de errores y, opcionalmente, entrega fiable y control de flujo." },
+    { q: "Dirección MAC vs dirección IP", a: "<strong>MAC:</strong> física, 48 bits (hex), plana, grabada en la NIC, alcance <em>local</em> (un salto). <strong>IP:</strong> lógica, 32 bits, jerárquica, alcance <em>extremo a extremo</em>. ARP traduce IP → MAC." },
+    { q: "¿Qué es ARP y cómo funciona?", a: "<strong>ARP</strong> traduce una IP a su MAC en la misma LAN. El host manda una <strong>solicitud en broadcast</strong> ('¿quién tiene la IP X?'), el dueño responde en <strong>unicast</strong> con su MAC, y se guarda en la <strong>tabla ARP</strong>. Si el destino está en otra red, se resuelve la MAC del gateway." },
+    { q: "¿Qué es CSMA/CD?", a: "El método de acceso de Ethernet: el nodo <strong>escucha</strong> el canal antes de transmitir (carrier sense); si detecta una <strong>colisión</strong> mientras envía, aborta y reintenta tras un tiempo aleatorio (backoff). Wi-Fi usa CSMA/CA (evita la colisión)." },
+    { q: "Hub vs switch vs router", a: "<strong>Hub:</strong> capa física, repite los bits a todos los puertos. <strong>Switch:</strong> capa enlace, reenvía por <strong>MAC</strong> (autoaprende la tabla, full-duplex, sin colisiones). <strong>Router:</strong> capa red, reenvía por <strong>IP</strong> y elige rutas entre redes." }
+  ]
+},
+
+/* ===================================================================
    MODELO DE CAPAS Y ENCAPSULAMIENTO (síntesis)
    =================================================================== */
 {

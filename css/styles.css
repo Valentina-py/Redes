@@ -754,3 +754,69 @@ ol.lab-steps > li::before {
 /* Animaciones suaves al entrar */
 .fade-in { animation: fade .35s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ===================== JUEGOS ===================== */
+.game-mc__score { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+.game-mc__q { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 16px; line-height: 1.4; }
+.game-ip {
+  display: inline-block; margin-top: 8px; padding: 6px 14px; border-radius: 10px;
+  background: var(--accent-soft); color: var(--accent); font-weight: 800;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 17px;
+}
+.stars-mini { color: var(--warn); letter-spacing: 1px; font-size: 12px; }
+.game-end__stars { display: block; color: var(--warn); font-size: 34px; letter-spacing: 4px; margin-bottom: 8px; }
+.game-end .quiz-score-ring { margin: 0 auto 6px; }
+
+/* Memotest */
+.memo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 6px 0 14px; }
+.memo-card {
+  min-height: 78px; padding: 8px; border: 1px solid var(--border); border-radius: 12px;
+  background: var(--accent); color: transparent; cursor: pointer; font-size: 13px; font-weight: 600;
+  display: grid; place-items: center; text-align: center; transition: background .2s, color .2s, transform .15s;
+}
+.memo-card > span { background: linear-gradient(135deg, var(--accent), var(--accent-2)); width: 100%; height: 100%; border-radius: 8px; display: grid; place-items: center; }
+.memo-card.flip { background: var(--surface); color: var(--text); }
+.memo-card.flip > span { background: none; }
+.memo-card.done { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); cursor: default; }
+.memo-card.done > span { background: none; }
+@media (max-width: 600px) { .memo-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* Ordená la secuencia */
+.seq-target { display: flex; flex-direction: column; gap: 8px; min-height: 12px; margin-bottom: 14px; }
+.seq-step {
+  display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 10px;
+  background: var(--ok-soft); border: 1px solid var(--ok); color: var(--text); font-weight: 600; font-size: 14px;
+}
+.seq-step__n { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 99px; background: var(--ok); color: #fff; font-size: 12px; flex-shrink: 0; }
+.seq-pool { display: flex; flex-direction: column; gap: 10px; }
+.seq-chip {
+  padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer; text-align: left; transition: border-color .15s;
+}
+.seq-chip:hover:not(:disabled) { border-color: var(--accent); }
+.seq-chip:disabled { opacity: .35; cursor: default; }
+.seq-chip.shake { animation: shake .4s; border-color: var(--bad); }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+/* Subneteo exprés */
+.sn-ok { color: var(--ok); font-weight: 800; }
+.sn-no { color: var(--bad); font-weight: 700; }
+
+/* ===================== SIMULACRO DE PARCIAL ===================== */
+.exam-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.exam-timer {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 24px; font-weight: 800;
+  color: var(--accent); padding: 8px 16px; border-radius: 12px; background: var(--accent-soft);
+  position: sticky; top: 70px; min-width: 84px; text-align: center;
+}
+.exam-timer.danger { color: var(--bad); background: var(--bad-soft); animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .55; } }
+.exam-q { margin-bottom: 14px; }
+.exam-q__head { display: flex; align-items: center; gap: 10px; font-size: 12.5px; margin-bottom: 10px; }
+.exam-q__n { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 99px; background: var(--accent); color: #fff; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+.exam-q .quiz-opt.sel { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.exam-q--ok { border-color: color-mix(in srgb, var(--ok) 40%, var(--border)); }
+.exam-q--no { border-color: color-mix(in srgb, var(--bad) 40%, var(--border)); }
